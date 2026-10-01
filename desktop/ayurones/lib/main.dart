@@ -52,7 +52,7 @@ class _AyuronesDesktopState extends State<AyuronesDesktop> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Ayurones',
-      theme: ThemeData.dark(useMaterial3: true, colorSchemeSeed: Colors.white),
+      theme: ThemeData.dark(useMaterial3: true),
       home: Scaffold(
         body: SafeArea(
           child: Row(
