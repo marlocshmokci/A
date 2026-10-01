@@ -1,41 +1,30 @@
-👌# Ayurones
+# Ayurones
 
-Ayurones — Android VPN/TUN client with a feature-rich interface and a beginner-friendly bilingual guide.
+Ayurones is becoming a minimal, strict messenger.
 
-## Downloads
+## Apps
 
-### Android
-- **Ayurones v0.2.0 ARM64 APK:** open the latest successful Android build in GitHub Actions and download the APK artifact.
+### Ayurones
+Android messenger with chats, contacts, local message history, profile photo selection, activity points, a decoration store, and a Test Server connection check.
 
-### Windows PC
-- **Ayurones Desktop v0.2.0 (Windows x64 ZIP):** [Download page](https://github.com/marlocshmokci/A/actions/runs/36895146754)
-- On the run page, open **Artifacts** → **Ayurones-Desktop-v0.2.0-windows-x64**.
-- Extract the ZIP and run the Ayurones executable. No Android Studio or Android SDK is needed.
+### Test Server
+A separate Android testing application. It can run a local HTTP test endpoint on port 8787, expose health/status responses, generate test counters, and unlock unlimited test modes for future features.
 
-GitHub Actions stores workflow artifacts for a limited retention period, so the PC download page points to the build artifact rather than pretending it is a permanent release.
+### Ayurones Desktop
+Windows companion with chats, profile, activity points and decorations.
 
-## Features
-- App branding: Ayurones.
-- Launcher icon: white drop on black.
-- No in-app support/donation button.
-- Minimal first-run prompts.
-- Optional mini-guide on first launch with **Skip**.
-- Buy a server / Купить сервер screen.
-- Server request form opens https://t.me/eppere with a prepared message.
-- Large English and Russian documentation.
+### Капельки
+Standalone endless 2D mini-game with persistent best score.
 
-## Documentation
-- English: docs/USER_GUIDE.md
-- Russian: docs/USER_GUIDE.ru.md
+## Design
+The messenger interface is deliberately restrained: black background, white type, quiet borders and compact controls. The **Украшения** section is intentionally more expressive.
 
-## Build
-GitHub Actions checks out a pinned open-source client source tree, applies the Ayurones branding layer, fetches the pinned VPN core and builds an ARM64 release APK.
+## Repository structure
+- `apps/ayurones-messenger` — Android messenger
+- `apps/test-server` — Android Test Server
+- `desktop/ayurones` — Windows messenger
+- `games/ayurones-drops` — Капельки
+- `docs/USER_GUIDE.md` — English guide
+- `docs/USER_GUIDE.ru.md` — Russian guide
 
-Artifact: AyuronesVPN-arm64.apk
-
-## Licensing
-Ayurones incorporates open-source VPN components. The upstream source and license/notice files remain part of the build process. See THIRD_PARTY_NOTICES.md for the redistribution summary.
-
-## Rainwater note
-
-Do not drink rainwater directly: it can contain pollutants and contaminants picked up from the atmosphere and surfaces. The phrase about “chemicals in clouds” is intentionally kept simple for the game/documentation and should not be read as a scientific claim that all clouds contain a specific chemical.
+The current product direction is messaging; old network-client branding and documentation are no longer part of the active application surface.
