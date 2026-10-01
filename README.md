@@ -12,7 +12,7 @@ Ayurones — Android VPN/TUN client with a feature-rich interface and a beginner
 - On the run page, open **Artifacts** → **Ayurones-Desktop-v0.2.0-windows-x64**.
 - Extract the ZIP and run the Ayurones executable. No Android Studio or Android SDK is needed.
 
-GitHub Actions stores workflow artifacts for a limited retention period, so the PC download page points to the build artifact rather than pretending it is a permanent release. citeturn0search0turn0search1
+GitHub Actions stores workflow artifacts for a limited retention period, so the PC download page points to the build artifact rather than pretending it is a permanent release.
 
 ## Features
 - App branding: Ayurones.
