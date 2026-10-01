@@ -104,6 +104,12 @@ public final class Store {
         p(c).edit().putBoolean("unlimited", v).apply();
     }
 
+    static void grantAllDecorations(Context c, Decoration[] items) {
+        SharedPreferences.Editor e = p(c).edit();
+        for (Decoration d : items) e.putBoolean("owned_" + d.id, true);
+        e.apply();
+    }
+
     static final class Decoration {
         final String id, title, icon;
         final int cost;
