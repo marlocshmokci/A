@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: android-messenger
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-messenger:
