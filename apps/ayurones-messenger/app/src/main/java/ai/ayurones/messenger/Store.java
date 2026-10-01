@@ -41,7 +41,7 @@ public final class Store {
     }
     static List<String> messages(Context c,String chat){List<String>out=new ArrayList<>();for(Message m:messagesDetailed(c,chat))out.add(m.text==null?"":m.text);return out;}
 
-    private static String previewText(Message m){if(m.fileName!=null&&!m.fileName.isEmpty())return "📎 "+m.fileName;return m.text==null||m.text.isEmpty()?"Сообщение":m.text;}
+    static String previewText(Message m){if(m.fileName!=null&&!m.fileName.isEmpty())return "📎 "+m.fileName;return m.text==null||m.text.isEmpty()?"Сообщение":m.text;}
     private static void writeMessages(Context c,String chat,List<Message>all){
         JSONArray a=new JSONArray();for(Message m:all)a.put(m.toJson());
         p(c).edit().putString("chat_"+chat,a.toString()).putString("preview_"+chat,all.isEmpty()?"":previewText(all.get(all.size()-1))).putLong("last_time_"+chat,all.isEmpty()?0:all.get(all.size()-1).time).apply();
