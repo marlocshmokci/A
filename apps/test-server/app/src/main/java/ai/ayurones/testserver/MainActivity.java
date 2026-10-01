@@ -61,14 +61,14 @@ public class MainActivity extends Activity {
         seed.setOnClickListener(v->{messages+=50;requests+=120;update();append("Сгенерированы пользователи, чаты и 50 сообщений.");});
         root.addView(seed);
 
-        TextView unlimited=tv("Выдать тестовому клиенту ∞ баллов",15);
+        TextView unlimited=tv("Включить unlimited для тестов",15);
         unlimited.setGravity(Gravity.CENTER);unlimited.setBackground(bg(Color.rgb(22,22,22)));
-        unlimited.setOnClickListener(v->append("Режим unlimited: включён для тестовой среды."));
+        unlimited.setOnClickListener(v->append("Unlimited режим включён для тестовой среды."));
         root.addView(unlimited);
 
-        TextView all=tv("Открыть весь каталог украшений",15);
+        TextView all=tv("Разблокировать все украшения",15);
         all.setGravity(Gravity.CENTER);all.setBackground(bg(Color.rgb(22,22,22)));
-        all.setOnClickListener(v->append("Каталог разблокирован: все предметы и будущие наборы доступны."));
+        all.setOnClickListener(v->append("Каталог разблокирован для тестов."));
         root.addView(all);
 
         TextView clear=tv("Сбросить счётчики",15);
@@ -85,6 +85,7 @@ public class MainActivity extends Activity {
         android.graphics.drawable.GradientDrawable d=new android.graphics.drawable.GradientDrawable();
         d.setColor(color);d.setCornerRadius(dp(16));d.setStroke(dp(1),Color.rgb(55,55,55));return d;
     }
+
     private TextView line(){TextView v=tv("",1);v.setBackgroundColor(Color.rgb(35,35,35));v.setHeight(dp(1));return v;}
 
     private void startServer(){
@@ -92,9 +93,8 @@ public class MainActivity extends Activity {
             server=new ServerSocket(8787);
             running=true;
             status.setText("Статус: запущен · порт 8787");
-            String ip=localIp();
-            url.setText("Адрес: http://"+ip+":8787");
-            append("HTTP test endpoint запущен.");
+            url.setText("Адрес: http://"+localIp()+":8787");
+            append("HTTP endpoint запущен.");
             update();
 
             new Thread(()->{
@@ -103,7 +103,7 @@ public class MainActivity extends Activity {
                     catch(Exception e){if(running)append("Ошибка: "+e.getMessage());}
                 }
             },"ayurones-test-server").start();
-        }catch(Exception e){append("Не удалось открыть порт 8787: "+e.getMessage());}
+        }catch(Exception e){append("Порт 8787 недоступен: "+e.getMessage());}
     }
 
     private void stopServer(){
@@ -120,8 +120,8 @@ public class MainActivity extends Activity {
                 BufferedReader r=new BufferedReader(new InputStreamReader(s.getInputStream()));
                 String first=r.readLine();
                 if(first==null)return;
-                String line;
-                while((line=r.readLine())!=null && !line.isEmpty()){}
+                String header;
+                while((header=r.readLine())!=null && !header.isEmpty()){}
                 requests++;
 
                 String[] parts=first.split(" ");
@@ -129,11 +129,11 @@ public class MainActivity extends Activity {
                 String body;
                 int code=200;
                 if(path.equals("/health")) {
-                    body="{"status":"ok","service":"Ayurones Test Server"}";
+                    body="{\"status\":\"ok\",\"service\":\"Ayurones Test Server\"}";
                 } else if(path.equals("/status")) {
-                    body="{"users":"unlimited","points":"unlimited","decorations":"all","messages":"+messages+"}";
+                    body="{\"users\":\"unlimited\",\"points\":\"unlimited\",\"decorations\":\"all\",\"messages\":"+messages+"}";
                 } else {
-                    body="{"error":"not_found"}";
+                    body="{\"error\":\"not_found\"}";
                     code=404;
                 }
 
@@ -143,9 +143,7 @@ public class MainActivity extends Activity {
                     +"Content-Type: application/json; charset=utf-8\r\n"
                     +"Content-Length: "+bytes.length+"\r\n"
                     +"Connection: close\r\n\r\n").getBytes("UTF-8"));
-                out.write(bytes);
-                out.flush();
-                update();
+                out.write(bytes);out.flush();update();
             }catch(Exception e){append("Запрос: "+e.getMessage());}
         },"ayurones-test-request").start();
     }
@@ -161,15 +159,8 @@ public class MainActivity extends Activity {
         return "127.0.0.1";
     }
 
-    private void append(String s){
-        runOnUiThread(()->{if(log!=null)log.append("• "+s+"\n");});
-    }
-    private void update(){
-        runOnUiThread(()->{if(counters!=null)counters.setText("Запросов: "+requests+" · сообщений: "+messages);});
-    }
+    private void append(String s){runOnUiThread(()->{if(log!=null)log.append("• "+s+"\n");});}
+    private void update(){runOnUiThread(()->{if(counters!=null)counters.setText("Запросов: "+requests+" · сообщений: "+messages);});}
 
-    @Override protected void onDestroy(){
-        stopServer();
-        super.onDestroy();
-    }
+    @Override protected void onDestroy(){stopServer();super.onDestroy();}
 }
