@@ -1,14 +1,9 @@
-# Ayurones Desktop v0.2.0
+# Ayurones Messenger — Windows
 
-Ayurones for Windows is designed as a portable desktop build.
+Ayurones Desktop is the Windows companion for the Ayurones messenger.
 
-## Install
-1. Download the ZIP from GitHub Actions.
-2. Extract it anywhere.
-3. Run \`ayurones.exe\`.
-4. No Android SDK, Android Studio or emulator is required.
+## What works
+Chats, local message history during the session, profile view, points and profile decoration are implemented. The interface is intentionally strict and minimal; the decoration area is where visual customization is allowed.
 
 ## Build
-The repository contains a dedicated GitHub Actions workflow that builds the Windows release and packages it as a ZIP.
-
-The desktop client uses the same Ayurones branding and VPN core architecture as the Android client.
+GitHub Actions builds a portable Windows x64 ZIP. Extract the artifact and run the Ayurones executable.
