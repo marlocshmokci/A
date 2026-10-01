@@ -1,27 +1,24 @@
-# AyuronesVPN
+# Ayurones
 
-Android VPN/TUN client build based on the pinned LxBox/sing-box core.
+Ayurones — Android VPN/TUN client with a feature-rich interface and a beginner-friendly bilingual guide.
+
+## Features
+- App branding: Ayurones.
+- Launcher icon: white drop on black.
+- No in-app support/donation button.
+- Minimal first-run prompts.
+- Buy a server / Купить сервер screen.
+- Server request form opens https://t.me/eppere with a prepared message.
+- Large English and Russian documentation.
+
+## Documentation
+- English: docs/USER_GUIDE.md
+- Russian: docs/USER_GUIDE.ru.md
 
 ## Build
+GitHub Actions checks out a pinned open-source client source tree, applies the Ayurones branding layer, fetches the pinned VPN core and builds an ARM64 release APK.
 
-GitHub Actions builds an ARM64 release APK automatically on pushes to `main` and can also be started manually from the Actions tab.
+Artifact: AyuronesVPN-arm64.apk
 
-The generated artifact is named `AyuronesVPN-arm64`.
-
-## Supported core protocols
-
-The underlying sing-box/LxBox core supports protocols including VLESS, VMess, Trojan, Shadowsocks, Hysteria2, TUIC, WireGuard and XHTTP.
-
-## Reproducibility
-
-LxBox is pinned to commit `bb7c8eeab8315f4454e99399888813f1cd32d230`.
-
-Build toolchain:
-- Flutter 3.47.1
-- Java 17
-- Android NDK 28.0.13004108
-- Android API 36
-
-## License
-
-The application incorporates LxBox/sing-box components. Their upstream licenses and notices apply to the corresponding components.
+## Licensing
+Ayurones incorporates open-source VPN components. The upstream source and license/notice files remain part of the build process. See THIRD_PARTY_NOTICES.md for the redistribution summary.
