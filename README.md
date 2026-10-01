@@ -11,10 +11,7 @@ Android messenger with chats, contacts, local message history, profile photo sel
 A separate Android testing application. It can run a local HTTP test endpoint on port 8787, expose health/status responses, generate test counters, and unlock unlimited test modes for future features.
 
 ### Ayurones Desktop
-Windows companion with chats, profile, activity points and decorations.
-
-### Капельки
-Standalone endless 2D mini-game with persistent best score.
+Windows companion with chats, profile, activity points and 
 
 ## Design
 The messenger interface is deliberately restrained: black background, white type, quiet borders and compact controls. The **Украшения** section is intentionally more expressive.
