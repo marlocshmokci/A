@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout this repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Checkout pinned LxBox source
         env:
@@ -32,14 +32,16 @@ jobs:
           git checkout --detach "$LXBOX_COMMIT"
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "17"
           cache: gradle
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+          with:
+            packages: platform-tools
 
       - name: Install Android SDK and NDK
         run: |
