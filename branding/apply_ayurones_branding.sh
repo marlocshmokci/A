@@ -86,4 +86,6 @@ make("ic_launcher_foreground.png", transparent=True)
 make("ic_launcher_background.png")
 PY
 
+python3 "$ROOT/branding/apply_network_fixes.py"
+
 echo "Ayurones branding applied."
