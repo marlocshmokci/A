@@ -51,12 +51,12 @@ jobs:
           SIZE=$(stat -c%s "$APK")
           echo "Messenger APK size: $SIZE bytes"
           test "$SIZE" -ge 78643200
-          cp "$APK" Ayurones-Messenger-v0.4.0-full.apk
-          sha256sum Ayurones-Messenger-v0.4.0-full.apk
+          cp "$APK" Ayurones-Messenger-v0.2.0-full.apk
+          sha256sum Ayurones-Messenger-v0.2.0-full.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-Messenger-v0.4.0-full
-          path: Ayurones-Messenger-v0.4.0-full.apk
+          name: Ayurones-Messenger-v0.2.0-full
+          path: Ayurones-Messenger-v0.2.0-full.apk
           retention-days: 30
 
   build-test-server:
