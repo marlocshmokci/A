@@ -1,0 +1,95 @@
+name: Build AyuronesVPN APK
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build arm64 APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned LxBox source
+        env:
+          LXBOX_COMMIT: bb7c8eeab8315f4454e99399888813f1cd32d230
+        run: |
+          set -euo pipefail
+          git clone --no-tags https://github.com/Leadaxe/LxBox.git build/lxbox
+          cd build/lxbox
+          git fetch --depth 1 origin "$LXBOX_COMMIT"
+          git checkout --detach "$LXBOX_COMMIT"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK and NDK
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager             "platform-tools"             "platforms;android-36"             "build-tools;36.0.0"             "ndk;28.0.13004108"
+
+      - name: Set up Flutter 3.47.1
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.47.1"
+          channel: stable
+          cache: true
+
+      - name: Fetch pinned sing-box/libbox core
+        working-directory: build/lxbox
+        run: |
+          set -euo pipefail
+          chmod +x scripts/fetch-libbox.sh
+          ./scripts/fetch-libbox.sh
+
+      - name: Install Dart dependencies
+        working-directory: build/lxbox/app
+        run: flutter pub get
+
+      - name: Build release APK
+        working-directory: build/lxbox/app
+        env:
+          LXBOX_ABI_FILTER: arm64-v8a
+        run: |
+          set -euo pipefail
+          flutter build apk --release --target-platform android-arm64
+
+      - name: Verify APK
+        run: |
+          set -euo pipefail
+          APK="build/lxbox/app/build/app/outputs/flutter-apk/app-release.apk"
+          test -s "$APK"
+          ls -lh "$APK"
+          sha256sum "$APK"
+
+      - name: Prepare APK artifact
+        run: |
+          set -euo pipefail
+          cp build/lxbox/app/build/app/outputs/flutter-apk/app-release.apk AyuronesVPN-arm64.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AyuronesVPN-arm64
+          path: AyuronesVPN-arm64.apk
+          if-no-files-found: error
+          retention-days: 30
