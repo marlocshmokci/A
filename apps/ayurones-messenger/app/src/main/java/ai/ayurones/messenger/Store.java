@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,10 +34,6 @@ public final class Store {
         Set<String> s = contacts(c);
         s.add(name);
         p(c).edit().putStringSet("contacts", s).apply();
-    }
-
-    static String safe(String s) {
-        return s.replace("\\", "\\\\").replace(""", "\\"");
     }
 
     static List<String> messages(Context c, String chat) {
@@ -107,12 +102,6 @@ public final class Store {
 
     static void setUnlimited(Context c, boolean v) {
         p(c).edit().putBoolean("unlimited", v).apply();
-    }
-
-    static void grantAllDecorations(Context c, Decoration[] items) {
-        SharedPreferences.Editor e = p(c).edit();
-        for (Decoration d : items) e.putBoolean("owned_" + d.id, true);
-        e.apply();
     }
 
     static final class Decoration {
