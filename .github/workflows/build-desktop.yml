@@ -1,4 +1,4 @@
-name: Build Ayurones Desktop
+name: Build Ayurones Messenger Desktop
 
 on:
   push:
@@ -23,11 +23,11 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Create portable desktop shell
+      - name: Generate Windows runner
         shell: pwsh
         run: |
           flutter create --platforms=windows desktop/ayurones
-          (Get-Content desktop/ayurones/pubspec.yaml) -replace '^version: .*$', 'version: 0.2.0+20' | Set-Content desktop/ayurones/pubspec.yaml
+          (Get-Content desktop/ayurones/pubspec.yaml) -replace '^version: .*$', 'version: 0.3.0+30' | Set-Content desktop/ayurones/pubspec.yaml
 
       - name: Build Windows
         working-directory: desktop/ayurones
@@ -38,10 +38,10 @@ jobs:
       - name: Package ZIP
         shell: pwsh
         run: |
-          Compress-Archive -Path desktop/ayurones/build/windows/x64/runner/Release/* -DestinationPath Ayurones-Desktop-v0.2.0-windows-x64.zip
+          Compress-Archive -Path desktop/ayurones/build/windows/x64/runner/Release/* -DestinationPath Ayurones-Messenger-Desktop-v0.3.0-windows-x64.zip
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-Desktop-v0.2.0-windows-x64
-          path: Ayurones-Desktop-v0.2.0-windows-x64.zip
+          name: Ayurones-Messenger-Desktop-v0.3.0-windows-x64
+          path: Ayurones-Messenger-Desktop-v0.3.0-windows-x64.zip
           retention-days: 30
