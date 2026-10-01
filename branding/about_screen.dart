@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../services/install_source.dart';
 import '../services/project_links.dart';
 import '../services/url_launcher.dart' as ul;
 import '../services/version_info.dart';
@@ -41,10 +40,18 @@ class AboutScreen extends StatelessWidget {
               children: [
                 ListTile(
                   leading: const Icon(Icons.menu_book_outlined),
-                  title: const Text('User guide / Руководство'),
-                  subtitle: const Text('English and Russian: complete interface walkthrough'),
+                  title: const Text('English guide'),
+                  subtitle: const Text('Complete Ayurones interface walkthrough'),
                   trailing: const Icon(Icons.open_in_new, size: 18),
                   onTap: () => ul.UrlLauncher.open(ProjectLinks.guideEn),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.menu_book_outlined),
+                  title: const Text('Русское руководство'),
+                  subtitle: const Text('Полная инструкция по Ayurones'),
+                  trailing: const Icon(Icons.open_in_new, size: 18),
+                  onTap: () => ul.UrlLauncher.open(ProjectLinks.guideRu),
                 ),
                 const Divider(height: 1),
                 ListTile(
@@ -78,7 +85,7 @@ class AboutScreen extends StatelessWidget {
                   leading: const Icon(Icons.download_outlined),
                   title: const Text('GitHub Releases'),
                   subtitle: const Text('APK builds and release notes'),
-                  onTap: () => ul.UrlLauncher.open(InstallSourceResolver.current.pageUrl),
+                  onTap: () => ul.UrlLauncher.open(ProjectLinks.releases),
                 ),
                 ListTile(
                   leading: const Icon(Icons.telegram),
