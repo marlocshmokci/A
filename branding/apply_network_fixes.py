@@ -68,7 +68,7 @@ if controller.exists():
         final endpointLine = RegExp(r'(?m)^Endpoint\s*=.*$').firstMatch(raw);
         if (endpointLine != null) {
           final at = endpointLine.end;
-          raw = '${raw.substring(0, at)}\nPersistentKeepalive = 25${raw.substring(at)}';
+          raw = '${raw.substring(0, at)}\\nPersistentKeepalive = 25${raw.substring(at)}';
         }
       }
 
