@@ -41,12 +41,14 @@ jobs:
           ./gradlew assembleRelease
       - name: Verify Messenger
         run: |
-          test -s apps/ayurones-messenger/app/build/outputs/apk/release/app-release.apk
-          sha256sum apps/ayurones-messenger/app/build/outputs/apk/release/app-release.apk
+          APK=$(find apps/ayurones-messenger -type f -path "*/build/outputs/apk/release/*.apk" | head -n 1)
+          test -n "$APK"
+          test -s "$APK"
+          sha256sum "$APK"
       - uses: actions/upload-artifact@v4
         with:
           name: Ayurones-Messenger-v0.3.0-arm64
-          path: apps/ayurones-messenger/app/build/outputs/apk/release/app-release.apk
+          path: apps/ayurones-messenger/app/build/outputs/apk/release/*.apk
           retention-days: 30
 
   build-test-server:
