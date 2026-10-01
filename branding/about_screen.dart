@@ -11,6 +11,9 @@ class AboutScreen extends StatelessWidget {
 
   final bool openDonate;
 
+  final String guideEn = 'https://github.com/marlocshmokci/A/blob/main/docs/USER_GUIDE.md';
+  final String guideRu = 'https://github.com/marlocshmokci/A/blob/main/docs/USER_GUIDE.ru.md';
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -43,7 +46,7 @@ class AboutScreen extends StatelessWidget {
                   title: const Text('English guide'),
                   subtitle: const Text('Complete Ayurones interface walkthrough'),
                   trailing: const Icon(Icons.open_in_new, size: 18),
-                  onTap: () => ul.UrlLauncher.open(ProjectLinks.guideEn),
+                  onTap: () => ul.UrlLauncher.open(guideEn),
                 ),
                 const Divider(height: 1),
                 ListTile(
@@ -51,7 +54,7 @@ class AboutScreen extends StatelessWidget {
                   title: const Text('Русское руководство'),
                   subtitle: const Text('Полная инструкция по Ayurones'),
                   trailing: const Icon(Icons.open_in_new, size: 18),
-                  onTap: () => ul.UrlLauncher.open(ProjectLinks.guideRu),
+                  onTap: () => ul.UrlLauncher.open(guideRu),
                 ),
                 const Divider(height: 1),
                 ListTile(
@@ -85,7 +88,7 @@ class AboutScreen extends StatelessWidget {
                   leading: const Icon(Icons.download_outlined),
                   title: const Text('GitHub Releases'),
                   subtitle: const Text('APK builds and release notes'),
-                  onTap: () => ul.UrlLauncher.open(ProjectLinks.releases),
+                  onTap: () => ul.UrlLauncher.open('https://github.com/marlocshmokci/A/releases'),
                 ),
                 ListTile(
                   leading: const Icon(Icons.telegram),
