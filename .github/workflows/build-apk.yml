@@ -21,7 +21,7 @@ jobs:
       - name: Checkout this repository
         uses: actions/checkout@v5
 
-      - name: Checkout pinned LxBox source
+      - name: Checkout pinned open-source client source
         env:
           LXBOX_COMMIT: bb7c8eeab8315f4454e99399888813f1cd32d230
         run: |
@@ -47,7 +47,11 @@ jobs:
         run: |
           set -euo pipefail
           yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager             "platform-tools"             "platforms;android-36"             "build-tools;36.0.0"             "ndk;28.0.13004108"
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "ndk;28.0.13004108"
 
       - name: Set up Flutter 3.47.1
         uses: subosito/flutter-action@v2
@@ -55,6 +59,12 @@ jobs:
           flutter-version: "3.47.1"
           channel: stable
           cache: true
+
+      - name: Apply Ayurones branding
+        run: |
+          set -euo pipefail
+          chmod +x branding/apply_ayurones_branding.sh
+          ./branding/apply_ayurones_branding.sh
 
       - name: Fetch pinned sing-box/libbox core
         working-directory: build/lxbox
@@ -66,6 +76,10 @@ jobs:
       - name: Install Dart dependencies
         working-directory: build/lxbox/app
         run: flutter pub get
+
+      - name: Generate launcher icons
+        working-directory: build/lxbox/app
+        run: flutter pub run flutter_launcher_icons
 
       - name: Build release APK
         working-directory: build/lxbox/app
