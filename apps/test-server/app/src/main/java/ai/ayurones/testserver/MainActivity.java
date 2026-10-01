@@ -7,6 +7,8 @@ import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -126,20 +128,24 @@ public class MainActivity extends Activity {
 
                 String[] parts=first.split(" ");
                 String path=parts.length>1?parts[1]:"/";
-                String body;
+                JSONObject json=new JSONObject();
                 int code=200;
-                if(path.equals("/health")) {
-                    body="{\"status\":\"ok\",\"service\":\"Ayurones Test Server\"}";
-                } else if(path.equals("/status")) {
-                    body="{\"users\":\"unlimited\",\"points\":\"unlimited\",\"decorations\":\"all\",\"messages\":"+messages+"}";
-                } else {
-                    body="{\"error\":\"not_found\"}";
+                if(path.equals("/health")){
+                    json.put("status","ok");
+                    json.put("service","Ayurones Test Server");
+                }else if(path.equals("/status")){
+                    json.put("users","unlimited");
+                    json.put("points","unlimited");
+                    json.put("decorations","all");
+                    json.put("messages",messages);
+                }else{
+                    json.put("error","not_found");
                     code=404;
                 }
-
-                byte[] bytes=body.getBytes("UTF-8");
+                byte[] bytes=json.toString().getBytes("UTF-8");
                 OutputStream out=s.getOutputStream();
-                out.write(("HTTP/1.1 "+code+" "+(code==200?"OK":"Not Found")+"\r\n"
+                String statusLine=code==200?"OK":"Not Found";
+                out.write(("HTTP/1.1 "+code+" "+statusLine+"\r\n"
                     +"Content-Type: application/json; charset=utf-8\r\n"
                     +"Content-Length: "+bytes.length+"\r\n"
                     +"Connection: close\r\n\r\n").getBytes("UTF-8"));
