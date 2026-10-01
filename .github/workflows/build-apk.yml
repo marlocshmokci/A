@@ -3,6 +3,13 @@ name: Build AyuronesVPN v0.2.0 APK
 on:
   push:
     branches: ["main"]
+    paths:
+      - "branding/**"
+      - ".github/workflows/build-apk.yml"
+      - "pubspec.yaml"
+      - "assets/**"
+      - "lib/**"
+      - "android/**"
   workflow_dispatch:
 
 permissions:
@@ -10,7 +17,7 @@ permissions:
 
 concurrency:
   group: android-apk
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
