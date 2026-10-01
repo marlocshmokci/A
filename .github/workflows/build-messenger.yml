@@ -39,16 +39,17 @@ jobs:
         run: |
           gradle wrapper --gradle-version 8.9 --distribution-type bin
           ./gradlew assembleRelease
-      - name: Verify Messenger
+      - name: Package Messenger APK
         run: |
-          APK=$(find apps/ayurones-messenger -type f -path "*/build/outputs/apk/release/*.apk" | head -n 1)
+          APK=$(find apps/ayurones-messenger -type f -name "*.apk" | head -n 1)
           test -n "$APK"
           test -s "$APK"
-          sha256sum "$APK"
+          cp "$APK" Ayurones-Messenger-v0.3.0.apk
+          sha256sum Ayurones-Messenger-v0.3.0.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-Messenger-v0.3.0-arm64
-          path: apps/ayurones-messenger/app/build/outputs/apk/release/*.apk
+          name: Ayurones-Messenger-v0.3.0
+          path: Ayurones-Messenger-v0.3.0.apk
           retention-days: 30
 
   build-test-server:
@@ -73,12 +74,15 @@ jobs:
         run: |
           gradle wrapper --gradle-version 8.9 --distribution-type bin
           ./gradlew assembleRelease
-      - name: Verify Test Server
+      - name: Package Test Server APK
         run: |
-          test -s apps/test-server/app/build/outputs/apk/release/app-release.apk
-          sha256sum apps/test-server/app/build/outputs/apk/release/app-release.apk
+          APK=$(find apps/test-server -type f -name "*.apk" | head -n 1)
+          test -n "$APK"
+          test -s "$APK"
+          cp "$APK" Ayurones-Test-Server-v0.1.0.apk
+          sha256sum Ayurones-Test-Server-v0.1.0.apk
       - uses: actions/upload-artifact@v4
         with:
           name: Ayurones-Test-Server-v0.1.0
-          path: apps/test-server/app/build/outputs/apk/release/app-release.apk
+          path: Ayurones-Test-Server-v0.1.0.apk
           retention-days: 30
