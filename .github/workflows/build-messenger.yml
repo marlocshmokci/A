@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   build-messenger:
-    name: Build Ayurones Messenger ARM64
+    name: Build Ayurones Messenger installable APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -28,50 +28,33 @@ jobs:
           java-version: "17"
           cache: gradle
       - uses: android-actions/setup-android@v4
-        with:
-          packages: platform-tools
       - name: Install Android build tools
         run: |
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
-      - name: Prepare Messenger media pack
-        run: |
-          mkdir -p apps/ayurones-messenger/app/src/main/res/raw
-          python3 - <<'PY'
-          import hashlib
-          from pathlib import Path
-          path = Path("apps/ayurones-messenger/app/src/main/res/raw/decoration_media_pack.bin")
-          h = hashlib.sha256(b"ayurones-media-pack-v1")
-          chunk = bytearray()
-          for _ in range(1220):
-              h = hashlib.sha256(h.digest())
-              chunk.extend(h.digest())
-          size = 80 * 1024 * 1024
-          path.write_bytes((bytes(chunk) * (size // len(chunk) + 1))[:size])
-          PY
       - name: Build Messenger
         working-directory: apps/ayurones-messenger
         run: |
           gradle wrapper --gradle-version 8.9 --distribution-type bin
-          ./gradlew assembleRelease
-      - name: Verify and package Messenger APK
+          ./gradlew clean assembleDebug
+      - name: Verify Messenger APK
         run: |
-          APK=$(find apps/ayurones-messenger/app/build/outputs/apk/release -type f -name "*.apk" | head -n 1)
+          set -euo pipefail
+          APK=$(find apps/ayurones-messenger/app/build/outputs/apk/debug -type f -name "*.apk" | head -n 1)
           test -n "$APK"
           test -s "$APK"
-          SIZE=$(stat -c%s "$APK")
-          echo "Messenger APK size: $SIZE bytes"
-          test "$SIZE" -ge 78643200
-          cp "$APK" Ayurones-Messenger-v0.2.0-full.apk
-          sha256sum Ayurones-Messenger-v0.2.0-full.apk
+          apksigner verify --verbose "$APK"
+          cp "$APK" Ayurones-Messenger-v0.2.1-debug.apk
+          stat -c "Messenger APK size: %s bytes" Ayurones-Messenger-v0.2.1-debug.apk
+          sha256sum Ayurones-Messenger-v0.2.1-debug.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-Messenger-v0.2.0-full
-          path: Ayurones-Messenger-v0.2.0-full.apk
+          name: Ayurones-Messenger-v0.2.1-debug
+          path: Ayurones-Messenger-v0.2.1-debug.apk
           retention-days: 30
 
   build-test-server:
-    name: Build Test Server ARM64
+    name: Build Test Server installable APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -81,44 +64,27 @@ jobs:
           java-version: "17"
           cache: gradle
       - uses: android-actions/setup-android@v4
-        with:
-          packages: platform-tools
       - name: Install Android build tools
         run: |
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
-      - name: Prepare Test Server fixture pack
-        run: |
-          mkdir -p apps/test-server/app/src/main/res/raw
-          python3 - <<'PY'
-          import hashlib
-          from pathlib import Path
-          path = Path("apps/test-server/app/src/main/res/raw/test_fixture_pack.bin")
-          h = hashlib.sha256(b"ayurones-media-pack-v1")
-          chunk = bytearray()
-          for _ in range(1220):
-              h = hashlib.sha256(h.digest())
-              chunk.extend(h.digest())
-          size = 80 * 1024 * 1024
-          path.write_bytes((bytes(chunk) * (size // len(chunk) + 1))[:size])
-          PY
       - name: Build Test Server
         working-directory: apps/test-server
         run: |
           gradle wrapper --gradle-version 8.9 --distribution-type bin
-          ./gradlew assembleRelease
-      - name: Verify and package Test Server APK
+          ./gradlew clean assembleDebug
+      - name: Verify Test Server APK
         run: |
-          APK=$(find apps/test-server/app/build/outputs/apk/release -type f -name "*.apk" | head -n 1)
+          set -euo pipefail
+          APK=$(find apps/test-server/app/build/outputs/apk/debug -type f -name "*.apk" | head -n 1)
           test -n "$APK"
           test -s "$APK"
-          SIZE=$(stat -c%s "$APK")
-          echo "Test Server APK size: $SIZE bytes"
-          test "$SIZE" -ge 78643200
-          cp "$APK" Ayurones-Test-Server-v0.2.0-full.apk
-          sha256sum Ayurones-Test-Server-v0.2.0-full.apk
+          apksigner verify --verbose "$APK"
+          cp "$APK" Ayurones-Test-Server-v0.2.1-debug.apk
+          stat -c "Test Server APK size: %s bytes" Ayurones-Test-Server-v0.2.1-debug.apk
+          sha256sum Ayurones-Test-Server-v0.2.1-debug.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-Test-Server-v0.2.0-full
-          path: Ayurones-Test-Server-v0.2.0-full.apk
+          name: Ayurones-Test-Server-v0.2.1-debug
+          path: Ayurones-Test-Server-v0.2.1-debug.apk
           retention-days: 30
