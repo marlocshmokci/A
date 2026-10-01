@@ -37,7 +37,18 @@ jobs:
       - name: Prepare Messenger media pack
         run: |
           mkdir -p apps/ayurones-messenger/app/src/main/res/raw
-          python3 -c 'import hashlib; p="apps/ayurones-messenger/app/src/main/res/raw/decoration_media_pack.bin"; f=open(p,"wb"); h=hashlib.sha256(b"ayurones-media-pack-v1"); chunk=b"";\nfor i in range(1220): h=hashlib.sha256(h.digest()); chunk+=h.digest();\nf.write((chunk*((80*1024*1024)//len(chunk)+1))[:80*1024*1024]); f.close()'
+          python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+          path = Path("apps/ayurones-messenger/app/src/main/res/raw/decoration_media_pack.bin")
+          h = hashlib.sha256(b"ayurones-media-pack-v1")
+          chunk = bytearray()
+          for _ in range(1220):
+              h = hashlib.sha256(h.digest())
+              chunk.extend(h.digest())
+          size = 80 * 1024 * 1024
+          path.write_bytes((bytes(chunk) * (size // len(chunk) + 1))[:size])
+          PY
       - name: Build Messenger
         working-directory: apps/ayurones-messenger
         run: |
@@ -79,7 +90,18 @@ jobs:
       - name: Prepare Test Server fixture pack
         run: |
           mkdir -p apps/test-server/app/src/main/res/raw
-          python3 -c 'import hashlib; p="apps/test-server/app/src/main/res/raw/test_fixture_pack.bin"; f=open(p,"wb"); h=hashlib.sha256(b"ayurones-media-pack-v1"); chunk=b"";\nfor i in range(1220): h=hashlib.sha256(h.digest()); chunk+=h.digest();\nf.write((chunk*((80*1024*1024)//len(chunk)+1))[:80*1024*1024]); f.close()'
+          python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+          path = Path("apps/test-server/app/src/main/res/raw/test_fixture_pack.bin")
+          h = hashlib.sha256(b"ayurones-media-pack-v1")
+          chunk = bytearray()
+          for _ in range(1220):
+              h = hashlib.sha256(h.digest())
+              chunk.extend(h.digest())
+          size = 80 * 1024 * 1024
+          path.write_bytes((bytes(chunk) * (size // len(chunk) + 1))[:size])
+          PY
       - name: Build Test Server
         working-directory: apps/test-server
         run: |
