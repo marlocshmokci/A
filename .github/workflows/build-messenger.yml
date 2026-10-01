@@ -1,0 +1,82 @@
+name: Build Ayurones Messenger + Test Server
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "apps/ayurones-messenger/**"
+      - "apps/test-server/**"
+      - ".github/workflows/build-messenger.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-messenger
+  cancel-in-progress: false
+
+jobs:
+  build-messenger:
+    name: Build Ayurones Messenger ARM64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: Install Android build tools
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+      - name: Build Messenger
+        working-directory: apps/ayurones-messenger
+        run: |
+          gradle wrapper --gradle-version 8.9 --distribution-type bin
+          ./gradlew assembleRelease
+      - name: Verify Messenger
+        run: |
+          test -s apps/ayurones-messenger/app/build/outputs/apk/release/app-release.apk
+          sha256sum apps/ayurones-messenger/app/build/outputs/apk/release/app-release.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ayurones-Messenger-v0.3.0-arm64
+          path: apps/ayurones-messenger/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
+
+  build-test-server:
+    name: Build Test Server ARM64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools
+      - name: Install Android build tools
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+      - name: Build Test Server
+        working-directory: apps/test-server
+        run: |
+          gradle wrapper --gradle-version 8.9 --distribution-type bin
+          ./gradlew assembleRelease
+      - name: Verify Test Server
+        run: |
+          test -s apps/test-server/app/build/outputs/apk/release/app-release.apk
+          sha256sum apps/test-server/app/build/outputs/apk/release/app-release.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ayurones-Test-Server-v0.1.0
+          path: apps/test-server/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30
