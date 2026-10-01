@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   build-messenger:
-    name: Build Ayurones Messenger installable APK
+    name: Build Ayurones Messenger full APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -32,11 +32,69 @@ jobs:
         run: |
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Generate real offline audio library
+        working-directory: apps/ayurones-messenger
+        run: |
+          python3 - <<'PY'
+          import math, os, wave
+          
+          out_dir = "app/src/main/res/raw"
+          os.makedirs(out_dir, exist_ok=True)
+          names = [
+              ("send_chime", (880, 1320)),
+              ("soft_pop", (520, 780)),
+              ("glass_ping", (1175, 1760)),
+              ("digital_wave", (330, 660)),
+              ("warm_bell", (440, 554)),
+              ("focus_tone", (256, 384)),
+              ("airy_note", (784, 988)),
+              ("pulse_note", (300, 450)),
+              ("success_chord", (523, 659, 784)),
+              ("classic_message", (392, 494, 587)),
+          ]
+          sample_rate = 44100
+          target_bytes = 8_600_000
+          samples = (target_bytes - 44) // 2
+          
+          for name, freqs in names:
+              one_sec = bytearray()
+              for n in range(sample_rate):
+                  t = n / sample_rate
+                  env = 1.0
+                  if t < 0.04:
+                      env = t / 0.04
+                  elif t > 0.82:
+                      env = max(0.0, (1.0 - t) / 0.18)
+                  value = 0.0
+                  for i, f in enumerate(freqs):
+                      offset = i * 0.002
+                      value += math.sin(2 * math.pi * f * (t - offset))
+                  value /= max(1, len(freqs))
+                  value *= env * 0.42
+                  sample = int(max(-1.0, min(1.0, value)) * 32767)
+                  one_sec.extend(int(sample).to_bytes(2, "little", signed=True))
+              
+              data = (bytes(one_sec) * (samples // sample_rate + 1))[:samples * 2]
+              path = os.path.join(out_dir, name + ".wav")
+              with wave.open(path, "wb") as wf:
+                  wf.setnchannels(1)
+                  wf.setsampwidth(2)
+                  wf.setframerate(sample_rate)
+                  wf.writeframes(data)
+              actual = os.path.getsize(path)
+              print(f"{path}: {actual} bytes")
+              if actual < target_bytes:
+                  raise SystemExit(f"{path} is unexpectedly small: {actual}")
+          PY
+          du -h app/src/main/res/raw
+
       - name: Build Messenger
         working-directory: apps/ayurones-messenger
         run: |
           gradle wrapper --gradle-version 8.9 --distribution-type bin
           ./gradlew clean assembleDebug
+
       - name: Verify Messenger APK
         run: |
           set -euo pipefail
@@ -45,13 +103,16 @@ jobs:
           test -s "$APK"
           APKSIGNER="$ANDROID_HOME/build-tools/36.0.0/apksigner"
           "$APKSIGNER" verify --verbose "$APK"
-          cp "$APK" Ayurones-Messenger-v0.2.1-debug.apk
-          stat -c "Messenger APK size: %s bytes" Ayurones-Messenger-v0.2.1-debug.apk
-          sha256sum Ayurones-Messenger-v0.2.1-debug.apk
+          cp "$APK" Ayurones-Messenger-v0.3.0-full.apk
+          SIZE=$(stat -c "%s" Ayurones-Messenger-v0.3.0-full.apk)
+          echo "Messenger APK size: $SIZE bytes"
+          test "$SIZE" -ge 83886080
+          sha256sum Ayurones-Messenger-v0.3.0-full.apk
+
       - uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-Messenger-v0.2.1-debug
-          path: Ayurones-Messenger-v0.2.1-debug.apk
+          name: Ayurones-Messenger-v0.3.0-full
+          path: Ayurones-Messenger-v0.3.0-full.apk
           retention-days: 30
 
   build-test-server:
@@ -80,12 +141,13 @@ jobs:
           APK=$(find apps/test-server/app/build/outputs/apk/debug -type f -name "*.apk" | head -n 1)
           test -n "$APK"
           test -s "$APK"
-          apksigner verify --verbose "$APK"
-          cp "$APK" Ayurones-Test-Server-v0.2.1-debug.apk
-          stat -c "Test Server APK size: %s bytes" Ayurones-Test-Server-v0.2.1-debug.apk
-          sha256sum Ayurones-Test-Server-v0.2.1-debug.apk
+          APKSIGNER="$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          "$APKSIGNER" verify --verbose "$APK"
+          cp "$APK" Ayurones-Test-Server-v0.3.0-debug.apk
+          stat -c "Test Server APK size: %s bytes" Ayurones-Test-Server-v0.3.0-debug.apk
+          sha256sum Ayurones-Test-Server-v0.3.0-debug.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-Test-Server-v0.2.1-debug
-          path: Ayurones-Test-Server-v0.2.1-debug.apk
+          name: Ayurones-Test-Server-v0.3.0-debug
+          path: Ayurones-Test-Server-v0.3.0-debug.apk
           retention-days: 30

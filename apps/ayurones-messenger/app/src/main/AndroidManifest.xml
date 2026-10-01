@@ -6,6 +6,7 @@
         android:label="Ayurones"
         android:allowBackup="true"
         android:supportsRtl="true">
+        <activity android:name=".MediaLibraryActivity"/>
         <activity android:name=".DecorationsActivity"/>
         <activity android:name=".SettingsActivity"/>
         <activity android:name=".ProfileActivity"/>
