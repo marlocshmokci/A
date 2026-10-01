@@ -40,5 +40,11 @@ Test Server предназначен для проверки будущих об
 ## Windows
 Windows-версия повторяет основную идею Ayurones: чаты, профиль, баллы и украшения.
 
-## Капельки
-«Капельки» остаётся отдельной мини-игрой и не зависит от мессенджера.
+---
+
+## Скачать v0.2.0
+
+- **Android — Ayurones Messenger v0.2.0:** https://github.com/marlocshmokci/A/actions/runs/36920973898
+- **Windows — Ayurones Messenger Desktop v0.2.0:** https://github.com/marlocshmokci/A/actions/runs/36920603705
+
+Открой нужный запуск GitHub Actions и скачай соответствующий файл из раздела **Artifacts**.
