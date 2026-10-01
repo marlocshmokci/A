@@ -1,4 +1,4 @@
-# Ayurones
+👌# Ayurones
 
 Ayurones — Android VPN/TUN client with a feature-rich interface and a beginner-friendly bilingual guide.
 
