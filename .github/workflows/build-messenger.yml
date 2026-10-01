@@ -43,7 +43,8 @@ jobs:
           APK=$(find apps/ayurones-messenger/app/build/outputs/apk/debug -type f -name "*.apk" | head -n 1)
           test -n "$APK"
           test -s "$APK"
-          apksigner verify --verbose "$APK"
+          APKSIGNER="$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          "$APKSIGNER" verify --verbose "$APK"
           cp "$APK" Ayurones-Messenger-v0.2.1-debug.apk
           stat -c "Messenger APK size: %s bytes" Ayurones-Messenger-v0.2.1-debug.apk
           sha256sum Ayurones-Messenger-v0.2.1-debug.apk
