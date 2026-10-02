@@ -1,14 +1,36 @@
- # Ayurones VM
+# Ayurones VM
 
-Android sandbox application replacing the old Messenger project.
+Android sandbox / virtual-device interface.
 
-## Features
-- Terminal running under the app's own Linux UID.
-- Private guest filesystem inside the app's internal storage.
-- File inspection, system diagnostics and one-tap guest reset.
-- No storage, network, camera, microphone, contacts or root permissions.
-- Guest commands cannot become root through this app.
+## Ayurones VM 0.2.0
 
-This first version is a safe sandbox, not a claim of full hardware virtualization. Android Virtualization Framework (AVF) and protected KVM are platform/device dependent. The architecture leaves room for an AVF backend on compatible devices.
+Новый интерфейс в стиле старых Android с созданием гостевых устройств.
 
-Build project: apps/ayurones-vm
+### Скачать APK
+
+**[📥 Скачать Ayurones VM 0.2.0 APK](https://github.com/marlocshmokci/A/releases/download/v0.2.0/Ayurones-VM-v0.2.0-debug.apk)**
+
+Ссылка ведёт непосредственно на APK Release asset.
+
+### Возможности
+
+- рабочий стол в стиле старых Android;
+- удержание пустого экрана 5 секунд для входа в меню VM;
+- локализованный экран ожидания;
+- выбор Android 4.4 — Android 16;
+- фоновая подготовка гостевой среды;
+- настройки виртуального устройства;
+- 4 нажатия по модели устройства открывают режим разработчика;
+- плавающий терминал `>_`;
+- перетаскиваемый терминальный значок;
+- команда `edelet` очищает только гостевую файловую систему;
+- камера запрашивает системное разрешение при использовании;
+- файлы открываются через системный Android picker.
+
+### Изоляция
+
+Приложение не получает root Android-хоста. Гостевая среда хранится в приватном каталоге приложения. Команда `edelet` не удаляет файлы самого Android и других приложений.
+
+> Примечание: версии Android в этой сборке являются подготовляемыми гостевыми средами интерфейса. Настоящая аппаратная виртуализация требует backend на базе Android Virtualization Framework/pKVM и поддержки конкретного устройства.
+
+Build project: `apps/ayurones-vm`
