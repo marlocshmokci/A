@@ -1,14 +1,14 @@
 plugins { id 'com.android.application' }
 
 android {
-    namespace 'ai.ayurones.testserver'
+    namespace 'ai.ayurones.vm'
     compileSdk 36
     defaultConfig {
-        applicationId 'ai.ayurones.testserver'
+        applicationId 'ai.ayurones.vm'
         minSdk 26
         targetSdk 36
-        versionCode 30
-        versionName '0.3.0'
+        versionCode 1
+        versionName '0.1.0'
     }
     buildTypes { release { minifyEnabled false } }
 }
