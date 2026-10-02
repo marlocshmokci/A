@@ -122,7 +122,7 @@ public class MainActivity extends Activity {
             b.setTextSize(28);
             b.setTextColor(Color.WHITE);
             bar.addView(b, new LinearLayout.LayoutParams(dp(54), dp(54)));
-            b.setOnClickListener(v -> onBackPressed());
+            b.setOnClickListener(v -> { if (selectedVmId != null) showGuest(selectedVmId); else showManager(); });
         }
         pageTitle = text(title, 20, Color.WHITE);
         pageTitle.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
@@ -379,10 +379,13 @@ public class MainActivity extends Activity {
         return f;
     }
 
-    private VmStore.VM currentVm() {
-        for (VmStore.VM v : VmStore.load(this)) if (v.id.equals(selectedVmId)) return v;
+    private VmStore.VM findVm(String id) {
+        if (id == null) return null;
+        for (VmStore.VM v : VmStore.load(this)) if (v.id.equals(id)) return v;
         return null;
     }
+
+    private VmStore.VM currentVm() { return findVm(selectedVmId); }
 
     private void showGuest(String vmId) {
         selectedVmId = vmId;
@@ -570,7 +573,7 @@ public class MainActivity extends Activity {
         toolbar("Guest files", true);
         LinearLayout body=column();body.setBackgroundColor(0xfff3f5f7);
         LinearLayout actions=row();
-        Button up=button("Home");
+        Button up=button("Guest Home");
         Button newFile=button("+ File");
         Button newDir=button("+ Folder");
         actions.addView(up,new LinearLayout.LayoutParams(0,dp(48),1));actions.addView(newFile,new LinearLayout.LayoutParams(0,dp(48),1));actions.addView(newDir,new LinearLayout.LayoutParams(0,dp(48),1));
@@ -578,7 +581,7 @@ public class MainActivity extends Activity {
 
         File dir=new File(vmDir(vmId),"home/user");
         refreshFileList(body,dir,vmId);
-        up.setOnClickListener(v->{});
+        up.setOnClickListener(v->showGuest(vmId));
         newFile.setOnClickListener(v->createFileDialog(dir,vmId));
         newDir.setOnClickListener(v->createFolderDialog(dir,vmId));
 
@@ -594,7 +597,7 @@ public class MainActivity extends Activity {
             LinearLayout r=row();
             String ico=f.isDirectory()?"□":"▤";
             TextView n=text(ico+"  "+f.getName(),16,0xff1a1f24);r.addView(n,new LinearLayout.LayoutParams(0,dp(48),1));
-            TextView meta=text(f.isDirectory()?"folder":GuestImage.format(f.length()),11,0xff737c85));r.addView(meta,new LinearLayout.LayoutParams(dp(90),dp(36)));
+            TextView meta=text(f.isDirectory()?"folder":GuestImage.format(f.length()),11,0xff737c85);r.addView(meta,new LinearLayout.LayoutParams(dp(90),dp(36)));
             c.addView(r);
             c.setOnClickListener(v->{if(f.isDirectory())openDir(vmId,f);else editFile(f,vmId);});
             body.addView(c,new LinearLayout.LayoutParams(-1,dp(58)));addGap(body,6);
@@ -648,7 +651,7 @@ public class MainActivity extends Activity {
     private void showGuestSettings(String vmId){
         resetRoot(0xfff2f4f6);toolbar("Guest settings",true);
         LinearLayout b=column();b.setBackgroundColor(0xfff2f4f6);
-        VmStore.VM vm=currentVm();
+        VmStore.VM vm=findVm(vmId);
         TextView model=text("Device model\nAyurones Virtual Device",18,0xff20252a);
         model.setBackground(bg(Color.WHITE,16));b.addView(model,new LinearLayout.LayoutParams(-1,dp(92)));
         final int[] taps={0};
@@ -666,7 +669,7 @@ public class MainActivity extends Activity {
     private void showVmDiagnostics(String vmId){
         resetRoot(0xff101419);toolbar("VM diagnostics",true);
         LinearLayout b=column();b.setBackgroundColor(0xff101419);
-        VmStore.VM vm=currentVm();
+        VmStore.VM vm=findVm(vmId);
         long image=GuestImage.size(this), overlay=dirSize(vmDir(vmId));
         String report="VM ID: "+vmId+
                 "\nState: "+(vm==null?"unknown":vm.state)+
