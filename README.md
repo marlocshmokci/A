@@ -4,37 +4,36 @@ Android sandbox / virtual-device interface.
 
 ## Ayurones VM 0.2.1
 
-Новый интерфейс в стиле старых Android с созданием гостевых устройств.
+Old-Android-style guest environment with a built-in developer terminal.
 
-### Скачать APK
+### Download APK
 
-**[📥 Скачать Ayurones VM 0.2.1 APK](https://github.com/marlocshmokci/A/releases/download/v0.2.1/Ayurones-VM-v0.2.1-debug.apk)**
+**[📥 Download Ayurones VM 0.2.1 APK](https://github.com/marlocshmokci/A/releases/download/v0.2.1/Ayurones-VM-v0.2.1-debug.apk)**
 
-Ссылка ведёт непосредственно на APK Release asset.
+This link points directly to the APK Release asset.
 
-### Документация
+### Documentation
 
-[📚 350 команд терминала](apps/ayurones-vm/COMMANDS.md)
+[📚 350 Terminal Commands](apps/ayurones-vm/COMMANDS.md)
 
-### Возможности
+### Features
 
-- рабочий стол в стиле старых Android;
-- удержание пустого экрана 5 секунд для входа в меню VM;
-- локализованный экран ожидания;
-- выбор Android 4.4 — Android 16;
-- фоновая подготовка гостевой среды;
-- настройки виртуального устройства;
-- 4 нажатия по модели устройства открывают режим разработчика;
-- плавающий терминал `>_`;
-- перетаскиваемый терминальный значок;
-- встроенный каталог из 350 команд;
-- камера запрашивает системное разрешение при использовании;
-- файлы открываются через системный Android picker.
+- Old-Android-style desktop.
+- Hold an empty area for 5 seconds to enter the VM menu.
+- Localized waiting screen.
+- Android 4.4 through Android 16 guest environment options.
+- Background guest-environment preparation.
+- Virtual-device settings.
+- Tap the device model four times to unlock the developer terminal.
+- Draggable `>_` terminal button.
+- Built-in catalog of 350 terminal commands.
+- Camera permission is requested only when the camera is opened.
+- Files are opened through the Android system document picker.
 
-### Изоляция
+### Isolation
 
-Приложение не получает root Android-хоста. Гостевая среда хранится в приватном каталоге приложения.
+The application does not receive root access to the Android host. Guest data is stored inside the application's private storage.
 
-> Примечание: версии Android в этой сборке являются подготовляемыми гостевыми средами интерфейса. Настоящая аппаратная виртуализация требует backend на базе Android Virtualization Framework/pKVM и поддержки конкретного устройства.
+> Note: Android versions in this build are prepared guest environments, not separate hardware-virtualized Android kernels. True hardware virtualization requires an Android Virtualization Framework/pKVM backend supported by the device.
 
-Build project: `apps/ayurones-vm`
+Project: `apps/ayurones-vm`
