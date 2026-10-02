@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
         runShell(c,c,out);
     }
     private void runShell(String shellCommand,String shownCommand,TextView out){
-        try{Process p=new ProcessBuilder("sh","-c",shellCommand).directory(sandbox).redirectErrorStream(true).start();BufferedReader r=new BufferedReader(new InputStreamReader(p.getInputStream()));StringBuilder s=new StringBuilder("\n$ "+shownCommand+"\n");String l;while((l=r.readLine())!=null&&s.length()<16000)s.append(l).append("\n");p.waitFor();out.append(s.toString());}catch(Exception e){out.append("\nerror: "+e.getMessage()+"\n");}
+        try{java.lang.Process p=new ProcessBuilder("sh","-c",shellCommand).directory(sandbox).redirectErrorStream(true).start();BufferedReader r=new BufferedReader(new InputStreamReader(p.getInputStream()));StringBuilder s=new StringBuilder("\n$ "+shownCommand+"\n");String l;while((l=r.readLine())!=null&&s.length()<16000)s.append(l).append("\n");p.waitFor();out.append(s.toString());}catch(Exception e){out.append("\nerror: "+e.getMessage()+"\n");}
     }
     private void openCamera(){if(checkSelfPermission(Manifest.permission.CAMERA)!=PackageManager.PERMISSION_GRANTED){requestPermissions(new String[]{Manifest.permission.CAMERA},REQ_CAMERA);return;}Intent i=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);if(i.resolveActivity(getPackageManager())!=null)startActivityForResult(i,REQ_CAMERA);}
     private void openFiles(){Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.addCategory(Intent.CATEGORY_OPENABLE);i.setType("*/*");startActivityForResult(i,REQ_FILE);}
