@@ -45,18 +45,18 @@ jobs:
           test -n "$APK"
           test -s "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK"
-          cp "$APK" Ayurones-VM-v0.2.0-debug.apk
-          sha256sum Ayurones-VM-v0.2.0-debug.apk
+          cp "$APK" Ayurones-VM-v0.2.1-debug.apk
+          sha256sum Ayurones-VM-v0.2.1-debug.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-VM-v0.2.0-debug
-          path: Ayurones-VM-v0.2.0-debug.apk
+          name: Ayurones-VM-v0.2.1-debug
+          path: Ayurones-VM-v0.2.1-debug.apk
           retention-days: 30
       - name: Publish direct APK release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release delete v0.2.0 --yes 2>/dev/null || true
-          gh release create v0.2.0 --target "$GITHUB_SHA" --title "Ayurones VM v0.2.0" --notes "Android sandbox build: isolated app UID, private guest filesystem, no broad device permissions."
-          gh release upload v0.2.0 Ayurones-VM-v0.2.0-debug.apk --clobber
+          gh release delete v0.2.1 --yes 2>/dev/null || true
+          gh release create v0.2.1 --target "$GITHUB_SHA" --title "Ayurones VM v0.2.1" --notes "Android sandbox build with 350 terminal commands."
+          gh release upload v0.2.1 Ayurones-VM-v0.2.1-debug.apk --clobber
