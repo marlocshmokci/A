@@ -1,6 +1,10 @@
 package ai.ayurones.vm;
 
 import android.app.Activity;
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.provider.MediaStore;
 import android.os.Bundle;
 import android.os.Build;
 import android.view.Gravity;
@@ -49,10 +53,12 @@ public class MainActivity extends Activity {
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         Button terminal = button("Терминал");
+        Button camera = button("Камера");
         Button files = button("Файлы");
         Button info = button("Система");
         Button reset = button("Сброс");
         row.addView(terminal, new LinearLayout.LayoutParams(0, -2, 1));
+        row.addView(camera, new LinearLayout.LayoutParams(0, -2, 1));
         row.addView(files, new LinearLayout.LayoutParams(0, -2, 1));
         row.addView(info, new LinearLayout.LayoutParams(0, -2, 1));
         row.addView(reset, new LinearLayout.LayoutParams(0, -2, 1));
@@ -87,7 +93,8 @@ public class MainActivity extends Activity {
         terminal.setOnClickListener(v -> command.requestFocus());
         run.setOnClickListener(v -> execute());
         command.setOnEditorActionListener((v, a, e) -> { execute(); return true; });
-        files.setOnClickListener(v -> listFiles());
+        camera.setOnClickListener(v -> openCamera());
+        files.setOnClickListener(v -> openFiles());
         info.setOnClickListener(v -> systemInfo());
         reset.setOnClickListener(v -> resetSandbox());
     }
@@ -123,6 +130,30 @@ public class MainActivity extends Activity {
             append("$ " + c + "
 ОШИБКА: " + e.getMessage());
         }
+    }
+
+    private void openCamera() {
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, 1001);
+            append("Android запросил доступ к камере.");
+            return;
+        }
+        Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (i.resolveActivity(getPackageManager()) != null) startActivityForResult(i, 1001);
+        else append("Камера недоступна.");
+    }
+
+    private void openFiles() {
+        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("*/*");
+        startActivityForResult(i, 1002);
+    }
+
+    @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(requestCode, permissions, results);
+        if (requestCode == 1001 && results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) openCamera();
+        else if (requestCode == 1001) append("Доступ к камере не предоставлен.");
     }
 
     private void listFiles() {
