@@ -59,7 +59,7 @@ with open(p,"r+b") as f:
         "overlay=writable\n"
         "architecture=generic-aarch64\n"
         "components=framework,coreutils,package-index,locale-pack,diagnostics\n"
-        "build=0.3.0\n"
+        "build=0.4.0\n"
     ).encode()
     f.seek(0)
     f.write(header.ljust(65536, b"\0"))
@@ -83,13 +83,13 @@ PY
           SIZE=$(stat -c%s "$APK")
           echo "APK bytes: $SIZE"
           test "$SIZE" -ge 367001600
-          cp "$APK" Ayurones-VM-v0.3.0-debug.apk
-          sha256sum Ayurones-VM-v0.3.0-debug.apk
+          cp "$APK" Ayurones-VM-v0.4.0-debug.apk
+          sha256sum Ayurones-VM-v0.4.0-debug.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-VM-v0.3.0-debug
-          path: Ayurones-VM-v0.3.0-debug.apk
+          name: Ayurones-VM-v0.4.0-debug
+          path: Ayurones-VM-v0.4.0-debug.apk
           retention-days: 30
 
       - name: Publish direct APK release
@@ -97,6 +97,6 @@ PY
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release delete v0.3.0 --yes 2>/dev/null || true
-          gh release create v0.3.0 --target "$GITHUB_SHA" --title "Ayurones VM v0.3.0" --notes "Functional VM shell with persistent guest state, terminal, file manager, diagnostics, virtual networking and a 360 MiB embedded guest runtime image."
-          gh release upload v0.3.0 Ayurones-VM-v0.3.0-debug.apk --clobber
+          gh release delete v0.4.0 --yes 2>/dev/null || true
+          gh release create v0.4.0 --target "$GITHUB_SHA" --title "Ayurones VM v0.4.0" --notes "Functional VM shell with persistent guest state, terminal, file manager, diagnostics, virtual networking and a 360 MiB embedded guest runtime image."
+          gh release upload v0.4.0 Ayurones-VM-v0.4.0-debug.apk --clobber
