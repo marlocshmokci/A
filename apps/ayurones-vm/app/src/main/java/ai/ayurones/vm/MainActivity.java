@@ -298,13 +298,16 @@ public class MainActivity extends Activity {
         LinearLayout actions = row();
         Button open = button(vm.state.equals("running") ? "Open" : "Start");
         open.setOnClickListener(v -> {
-            if (!"ready".equals(vm.state) && !"running".equals(vm.state) && !"stopped".equals(vm.state)) {
+            VmStore.VM fresh = findVm(vm.id);
+            if (fresh == null) return;
+            if (!"ready".equals(fresh.state) && !"running".equals(fresh.state) && !"stopped".equals(fresh.state)) {
                 Toast.makeText(this, "Still preparing this guest.", Toast.LENGTH_SHORT).show();
+                showManager();
                 return;
             }
-            VmStore.setState(this, vm.id, "running");
-            log(vm, "Guest started");
-            showGuest(vm.id);
+            VmStore.setState(this, fresh.id, "running");
+            log(fresh, "Guest started");
+            showGuest(fresh.id);
         });
         actions.addView(open, new LinearLayout.LayoutParams(0,dp(50),1));
 
