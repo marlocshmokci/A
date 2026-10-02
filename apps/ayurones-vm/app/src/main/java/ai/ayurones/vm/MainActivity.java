@@ -89,7 +89,7 @@ public class MainActivity extends Activity {
     private void showWait(){
         base();
         Space top=new Space(this); root.addView(top,new LinearLayout.LayoutParams(1,0,1));
-        TextView t=tv("Подождите 5 секунд",18); root.addView(t);
+        TextView t=tv(waitText(),18); root.addView(t);
         ProgressBar p=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);
         p.setMax(100); p.setProgress(0); root.addView(p,new LinearLayout.LayoutParams(-1,24));
         TextView sub=tv(localized("Подготовка доступа…"),13); root.addView(sub);
@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
         handler.post(r);
     }
 
-    private String localized(String ru){
+    private String waitText(){ String l=Locale.getDefault().getLanguage(); if(l.equals("en")) return "Please wait 5 seconds"; if(l.equals("de")) return "Bitte 5 Sekunden warten"; if(l.equals("fr")) return "Veuillez patienter 5 secondes"; if(l.equals("es")) return "Espere 5 segundos"; if(l.equals("it")) return "Attendere 5 secondi"; if(l.equals("pl")) return "Poczekaj 5 sekund"; if(l.equals("uk")) return "Зачекайте 5 секунд"; return "Подождите 5 секунд"; }\n\n    private String localized(String ru){
         String l=Locale.getDefault().getLanguage();
         if(l.equals("en")) return "Preparing access…";
         if(l.equals("de")) return "Zugriff wird vorbereitet…";
