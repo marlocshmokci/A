@@ -17,7 +17,7 @@ public class PrepareService extends Service {
         }
     }
     @Override public int onStartCommand(Intent intent,int flags,int id){
-        final String version=intent.getStringExtra("version");
+        final String version=intent == null ? "Android 16" : intent.getStringExtra("version");
         new Thread(()->{
             try{
                 File guest=new File(getFilesDir(),"guest"); guest.mkdirs();
