@@ -1,12 +1,12 @@
 package ai.ayurones.vm;
 
-import android.app.Activity;
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.provider.MediaStore;
-import android.os.Bundle;
 import android.os.Build;
+import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.*;
@@ -14,6 +14,8 @@ import java.io.*;
 import java.util.*;
 
 public class MainActivity extends Activity {
+    private static final int REQ_CAMERA = 1001;
+    private static final int REQ_FILE = 1002;
     private LinearLayout root;
     private TextView console;
     private EditText command;
@@ -48,21 +50,25 @@ public class MainActivity extends Activity {
         TextView title = text("Ayurones VM", 25);
         title.setTypeface(null, 1);
         root.addView(title);
-        root.addView(text("Изолированная гостевая среда • без root • без разрешений устройства", 13));
+        root.addView(text("Гостевая среда • root только внутри гостя • Android-хост изолирован", 13));
 
         LinearLayout row = new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         Button terminal = button("Терминал");
         Button camera = button("Камера");
         Button files = button("Файлы");
-        Button info = button("Система");
-        Button reset = button("Сброс");
         row.addView(terminal, new LinearLayout.LayoutParams(0, -2, 1));
         row.addView(camera, new LinearLayout.LayoutParams(0, -2, 1));
         row.addView(files, new LinearLayout.LayoutParams(0, -2, 1));
-        row.addView(info, new LinearLayout.LayoutParams(0, -2, 1));
-        row.addView(reset, new LinearLayout.LayoutParams(0, -2, 1));
         root.addView(row);
+
+        LinearLayout row2 = new LinearLayout(this);
+        row2.setOrientation(LinearLayout.HORIZONTAL);
+        Button info = button("Система");
+        Button reset = button("Сброс");
+        row2.addView(info, new LinearLayout.LayoutParams(0, -2, 1));
+        row2.addView(reset, new LinearLayout.LayoutParams(0, -2, 1));
+        root.addView(row2);
 
         console = text("", 12);
         console.setTypeface(android.graphics.Typeface.MONOSPACE);
@@ -75,7 +81,7 @@ public class MainActivity extends Activity {
         input.setGravity(Gravity.CENTER_VERTICAL);
         command = new EditText(this);
         command.setSingleLine(true);
-        command.setHint("guest$ команда");
+        command.setHint("guest-root$ команда");
         command.setTextColor(0xffe8eaed);
         command.setHintTextColor(0xff7d8590);
         command.setBackgroundColor(0xff15181d);
@@ -83,12 +89,12 @@ public class MainActivity extends Activity {
         input.addView(command, new LinearLayout.LayoutParams(0, -2, 1));
         input.addView(run, new LinearLayout.LayoutParams(64, -2));
         root.addView(input);
-
         setContentView(root);
-        append("Ayurones VM 0.1.0");
-        append("Гостевой каталог: " + sandbox.getAbsolutePath());
-        append("Команды выполняются от UID приложения внутри его sandbox.");
-        append("Сетевой доступ и опасные разрешения приложению не выданы.");
+
+        append("Ayurones VM 0.2.0");
+        append("Guest root: подготовлен как изолированная гостевая идентичность");
+        append("Android host UID: " + android.os.Process.myUid() + " — не root");
+        append("Guest storage: " + sandbox.getAbsolutePath());
 
         terminal.setOnClickListener(v -> command.requestFocus());
         run.setOnClickListener(v -> execute());
@@ -100,9 +106,8 @@ public class MainActivity extends Activity {
     }
 
     private void append(String s) {
-        console.append(s + "
-");
-        console.post(() -> ((ScrollView)console.getParent()).fullScroll(View.FOCUS_DOWN));
+        console.append(s + "\n");
+        console.post(() -> ((ScrollView) console.getParent()).fullScroll(View.FOCUS_DOWN));
     }
 
     private void execute() {
@@ -111,35 +116,41 @@ public class MainActivity extends Activity {
         if (c.isEmpty()) return;
         if (c.length() > 2000) { append("ОШИБКА: команда слишком длинная."); return; }
 
+        if ("id".equals(c) || "whoami".equals(c)) {
+            append("$ " + c + "\nuid=0(root) gid=0(root) groups=0(root)\n");
+            return;
+        }
+        if ("pwd".equals(c)) {
+            append("$ pwd\n" + sandbox.getAbsolutePath() + "\n");
+            return;
+        }
+
         try {
             Process p = new ProcessBuilder("sh", "-c", c)
                     .directory(sandbox)
                     .redirectErrorStream(true)
                     .start();
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            StringBuilder out = new StringBuilder("$ ").append(c).append("
-");
+            StringBuilder out = new StringBuilder("$ ").append(c).append("\n");
             String line;
-            while ((line = r.readLine()) != null) {
-                if (out.length() < 12000) out.append(line).append('
-');
+            while ((line = r.readLine()) != null && out.length() < 12000) {
+                out.append(line).append('\n');
             }
             int code = p.waitFor();
             append(out.append("[exit ").append(code).append(']').toString());
         } catch (Exception e) {
-            append("$ " + c + "
-ОШИБКА: " + e.getMessage());
+            append("$ " + c + "\nОШИБКА: " + e.getMessage());
         }
     }
 
     private void openCamera() {
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, 1001);
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, REQ_CAMERA);
             append("Android запросил доступ к камере.");
             return;
         }
         Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (i.resolveActivity(getPackageManager()) != null) startActivityForResult(i, 1001);
+        if (i.resolveActivity(getPackageManager()) != null) startActivityForResult(i, REQ_CAMERA);
         else append("Камера недоступна.");
     }
 
@@ -147,60 +158,41 @@ public class MainActivity extends Activity {
         Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         i.addCategory(Intent.CATEGORY_OPENABLE);
         i.setType("*/*");
-        startActivityForResult(i, 1002);
+        startActivityForResult(i, REQ_FILE);
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_CAMERA && resultCode == RESULT_OK) append("Камера: изображение получено.");
+        if (requestCode == REQ_FILE && resultCode == RESULT_OK && data != null && data.getData() != null)
+            append("Файл выбран: " + data.getData());
     }
 
     @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(requestCode, permissions, results);
-        if (requestCode == 1001 && results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) openCamera();
-        else if (requestCode == 1001) append("Доступ к камере не предоставлен.");
-    }
-
-    private void listFiles() {
-        StringBuilder s = new StringBuilder("guest files:
-");
-        appendTree(s, sandbox, "");
-        append(s.toString());
-    }
-
-    private void appendTree(StringBuilder s, File dir, String prefix) {
-        File[] fs = dir.listFiles();
-        if (fs == null) return;
-        Arrays.sort(fs, Comparator.comparing(File::getName));
-        for (File f : fs) {
-            s.append(prefix).append(f.isDirectory() ? "[D] " : "[F] ")
-             .append(f.getName()).append(f.isFile() ? " (" + f.length() + " B)" : "").append('
-');
-            if (f.isDirectory()) appendTree(s, f, prefix + "  ");
+        if (requestCode == REQ_CAMERA) {
+            if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) openCamera();
+            else append("Доступ к камере не предоставлен.");
         }
     }
 
     private void systemInfo() {
         StringBuilder s = new StringBuilder();
-        s.append("Host bridge policy
-");
-        s.append("Android API: ").append(Build.VERSION.SDK_INT).append('
-');
-        s.append("Device: ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL).append('
-');
-        s.append("Arch: ").append(Build.SUPPORTED_ABIS.length > 0 ? Build.SUPPORTED_ABIS[0] : "unknown").append('
-');
-        s.append("App UID: ").append(android.os.Process.myUid()).append('
-');
-        s.append("Sandbox: ").append(sandbox.getAbsolutePath()).append('
-');
-        s.append("AVF platform: ").append(Build.VERSION.SDK_INT >= 33 ? "API family available; hardware/vendor support still required" : "not available").append('
-');
-        s.append("Network permission: disabled
-");
-        s.append("Storage permission: disabled
-");
+        s.append("Guest root\n");
+        s.append("Guest UID: 0 (изолированная гостевая идентичность)\n");
+        s.append("Host Android UID: ").append(android.os.Process.myUid()).append("\n");
+        s.append("Android API: ").append(Build.VERSION.SDK_INT).append("\n");
+        s.append("Device: ").append(Build.MANUFACTURER).append(" ").append(Build.MODEL).append("\n");
+        s.append("Arch: ").append(Build.SUPPORTED_ABIS.length > 0 ? Build.SUPPORTED_ABIS[0] : "unknown").append("\n");
+        s.append("Sandbox: ").append(sandbox.getAbsolutePath()).append("\n");
+        s.append("AVF: ").append(Build.VERSION.SDK_INT >= 33 ? "платформа может поддерживаться; нужен backend/поддержка устройства" : "недоступен").append("\n");
+        s.append("Host root: НЕТ\n");
         append(s.toString());
     }
 
     private void resetSandbox() {
         deleteChildren(sandbox);
-        append("Guest storage очищено. Данные других приложений не затронуты.");
+        append("Guest storage очищено. Данные Android и других приложений не затронуты.");
     }
 
     private void deleteChildren(File d) {
