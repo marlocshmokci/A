@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: android-messenger
@@ -114,6 +114,18 @@ jobs:
           name: Ayurones-Messenger-v0.3.0-full
           path: Ayurones-Messenger-v0.3.0-full.apk
           retention-days: 30
+
+      - name: Publish direct APK release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release delete v0.3.0 --yes 2>/dev/null || true
+          gh release create v0.3.0 \
+            --target "$GITHUB_SHA" \
+            --title "Ayurones Messenger v0.3.0" \
+            --notes "Installable Android APK. Full offline messenger build with real media resources."
+          gh release upload v0.3.0 Ayurones-Messenger-v0.3.0-full.apk --clobber
 
   build-test-server:
     name: Build Test Server installable APK
