@@ -174,7 +174,7 @@ public class MainActivity extends Activity {
         TextView model=tv("Модель устройства\\nAyurones Virtual Device",17); model.setTextColor(Color.DKGRAY); model.setGravity(Gravity.LEFT|Gravity.CENTER_VERTICAL);
         root.addView(model,new LinearLayout.LayoutParams(-1,100));
         final int[] taps={0};
-        model.setOnClickListener(v->{ taps[0]++; if(taps[0]>=4){developerUnlocked=true; Toast.makeText(this,"Вы разработчик",Toast.LENGTH_SHORT).show(); addDeveloperOverlay();} });
+        model.setOnClickListener(v->{ taps[0]++; if(taps[0]>=4){developerUnlocked=true; addDeveloperOverlay();} });
         root.addView(tv("Версия Android: "+version,16));
         root.addView(tv("Хранилище: гостевое, изолированное",16));
         root.addView(tv("Доступ к камере и файлам запрашивается только при использовании",14));
