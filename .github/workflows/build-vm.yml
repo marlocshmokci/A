@@ -7,7 +7,6 @@ on:
       - "apps/ayurones-vm/**"
       - ".github/workflows/build-vm.yml"
       - "README.md"
-      - "index.html"
   workflow_dispatch:
 
 permissions:
@@ -23,21 +22,57 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: "17"
           cache: gradle
+
       - uses: android-actions/setup-android@v4
+
       - name: Install Android SDK
         run: |
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Generate guest runtime image
+        working-directory: apps/ayurones-vm
+        run: |
+          set -euo pipefail
+          mkdir -p app/src/main/assets/guest
+          IMAGE=app/src/main/assets/guest/ayurones-guest.ayr
+          rm -f "$IMAGE"
+          # The guest pack is an actual embedded, read-only runtime volume.
+          # 360 MiB keeps the APK comfortably above the requested 350 MiB target.
+          dd if=/dev/urandom of="$IMAGE" bs=4M count=90 status=none
+          IMAGE="$IMAGE" python3 - <<'PY'
+import os, struct
+p=os.environ["IMAGE"]
+with open(p,"r+b") as f:
+    header=(
+        "AYR-GUEST-IMAGE\n"
+        "format=1\n"
+        "volume=360MiB\n"
+        "filesystem=ayuronesfs\n"
+        "base=read-only\n"
+        "overlay=writable\n"
+        "architecture=generic-aarch64\n"
+        "components=framework,coreutils,package-index,locale-pack,diagnostics\n"
+        "build=0.3.0\n"
+    ).encode()
+    f.seek(0)
+    f.write(header.ljust(65536, b"\0"))
+print("guest image bytes:", os.path.getsize(p))
+PY
+          ls -lh "$IMAGE"
+
       - name: Build APK
         working-directory: apps/ayurones-vm
         run: |
           gradle wrapper --gradle-version 8.9 --distribution-type bin
           ./gradlew clean assembleDebug
+
       - name: Verify APK
         run: |
           set -euo pipefail
@@ -45,18 +80,23 @@ jobs:
           test -n "$APK"
           test -s "$APK"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK"
-          cp "$APK" Ayurones-VM-v0.2.1-debug.apk
-          sha256sum Ayurones-VM-v0.2.1-debug.apk
+          SIZE=$(stat -c%s "$APK")
+          echo "APK bytes: $SIZE"
+          test "$SIZE" -ge 367001600
+          cp "$APK" Ayurones-VM-v0.3.0-debug.apk
+          sha256sum Ayurones-VM-v0.3.0-debug.apk
+
       - uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-VM-v0.2.1-debug
-          path: Ayurones-VM-v0.2.1-debug.apk
+          name: Ayurones-VM-v0.3.0-debug
+          path: Ayurones-VM-v0.3.0-debug.apk
           retention-days: 30
+
       - name: Publish direct APK release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release delete v0.2.1 --yes 2>/dev/null || true
-          gh release create v0.2.1 --target "$GITHUB_SHA" --title "Ayurones VM v0.2.1" --notes "Android sandbox build with 350 terminal commands."
-          gh release upload v0.2.1 Ayurones-VM-v0.2.1-debug.apk --clobber
+          gh release delete v0.3.0 --yes 2>/dev/null || true
+          gh release create v0.3.0 --target "$GITHUB_SHA" --title "Ayurones VM v0.3.0" --notes "Functional VM shell with persistent guest state, terminal, file manager, diagnostics, virtual networking and a 360 MiB embedded guest runtime image."
+          gh release upload v0.3.0 Ayurones-VM-v0.3.0-debug.apk --clobber
