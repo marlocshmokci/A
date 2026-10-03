@@ -133,7 +133,7 @@ public class MainActivity extends Activity {
         for (String id : ids) {
             cards.append("<section class='card'><iframe src='https://www.tiktok.com/player/v1/")
                 .append(id).append("?controls=1&description=1&music_info=1&loop=1' allow='fullscreen; autoplay' loading='lazy'></iframe>")
-                .append("<div class='tools'><button onclick="Android.remove('").append(esc(id)).append("')">Убрать</button><button onclick="Android.open('").append(esc(id)).append("')">TikTok</button></div></section>");
+                .append("<div class='tools'><button onclick=\"Android.remove('" ).append(esc(id)).append("')\">Убрать</button><button onclick=\"Android.open('" ).append(esc(id)).append("')\">TikTok</button></div></section>");
         }
 
         String html = "<!doctype html><html><head><meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=no'><style>"
