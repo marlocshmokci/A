@@ -83,9 +83,9 @@ public class MainActivity extends Activity {
         LinearLayout h=row();h.addView(avatar(p.name,17),new LinearLayout.LayoutParams(dp(46),dp(46)));
         LinearLayout who=col();TextView n=text(p.name+"  @"+p.handle,15);n.setTypeface(Typeface.DEFAULT,Typeface.BOLD);add(who,n,-1,25);add(who,sub(p.time,11),-1,20);h.addView(who,new LinearLayout.LayoutParams(0,46,1));box.addView(h);
         TextView bodyText=text(p.text,16);bodyText.setLineSpacing(0,1.06f);pad(bodyText,0,11,0,9);box.addView(bodyText);
-        LinearLayout acts=row();Button r=btn("Reply "+p.replies,false),rp=btn("↻ "+p.reposts,false),lk=btn((p.liked?"♥ ":"♡ ")+p.likes,false),sv=btn("Save",false);
+        LinearLayout acts=row();Button r=btn("Reply "+p.replies,false),rp=btn("↻ "+p.reposts,false),lk=btn((p.liked?"♥ ":"♡ ")+p.likes,false),sv=btn("Share",false);
         acts.addView(r,new LinearLayout.LayoutParams(0,40,1));acts.addView(rp,new LinearLayout.LayoutParams(0,40,1));acts.addView(lk,new LinearLayout.LayoutParams(0,40,1));acts.addView(sv,new LinearLayout.LayoutParams(0,40,1));box.addView(acts);
-        r.setOnClickListener(v->compose("↳ @"+p.handle+" "));lk.setOnClickListener(v->{p.liked=!p.liked;p.likes=String.valueOf(Math.max(0,Integer.parseInt(p.likes)+(p.liked?1:-1)));store.save();showHome();});rp.setOnClickListener(v->{p.reposts=String.valueOf(Integer.parseInt(p.reposts)+1);store.save();showHome();toast("Reposted");});sv.setOnClickListener(v->toast("Saved"));
+        r.setOnClickListener(v->compose("↳ @"+p.handle+" "));lk.setOnClickListener(v->{p.liked=!p.liked;p.likes=String.valueOf(Math.max(0,Integer.parseInt(p.likes)+(p.liked?1:-1)));store.save();showHome();});rp.setOnClickListener(v->{p.reposts=String.valueOf(Integer.parseInt(p.reposts)+1);store.save();showHome();toast("Reposted");});sv.setOnClickListener(v->sharePost(p));
         return box;
     }
     private void compose(String seed){
@@ -120,7 +120,7 @@ public class MainActivity extends Activity {
     private View bubble(AppStore.Message m){
         LinearLayout wrap=row();wrap.setGravity(m.me?Gravity.RIGHT:Gravity.LEFT);pad(wrap,13,5,13,5);LinearLayout b=col();b.setPadding(dp(12),dp(8),dp(12),dp(7));b.setBackground(rounded(m.me?accent:card,17));TextView t=text(m.text,15),tm=sub(m.me?"You":m.sender,10);b.addView(t);b.addView(tm);wrap.addView(b,new LinearLayout.LayoutParams((int)(getResources().getDisplayMetrics().widthPixels*.78),-2));wrap.setOnLongClickListener(v->{react(m);return true;});return wrap;
     }
-    private void react(AppStore.Message m){String[] a={"♡","👍","😂","🔥","✅","Remove"};new AlertDialog.Builder(this).setTitle("Reaction").setItems(a,(d,w)->{m.reaction=w==5?"":a[w];store.save();toast(m.reaction.isEmpty()?"Reaction removed":"Reaction added");}).show();}
+    private void sharePost(AppStore.Post p){ Intent i=new Intent(Intent.ACTION_SEND);i.setType("text/plain");i.putExtra(Intent.EXTRA_TEXT,p.text+"\\n\\n@"+p.handle+" via NEXA");startActivity(Intent.createChooser(i,"Share post")); }\n    private void react(AppStore.Message m){String[] a={"♡","👍","😂","🔥","✅","Remove"};new AlertDialog.Builder(this).setTitle("Reaction").setItems(a,(d,w)->{m.reaction=w==5?"":a[w];store.save();toast(m.reaction.isEmpty()?"Reaction removed":"Reaction added");}).show();}
     private void newChat(){EditText e=input("Name or @handle","");new AlertDialog.Builder(this).setTitle("New conversation").setView(e).setNegativeButton("Cancel",null).setPositiveButton("Create",(d,w)->{String s=e.getText().toString().trim();if(s.isEmpty())return;AppStore.Chat c=new AppStore.Chat("c"+System.currentTimeMillis(),s,s.toLowerCase(Locale.US).replace(" ",""),"New conversation","now","",true);store.chats.add(0,c);store.save();openChat(c);}).show();}
 
     private void showSearch(){
