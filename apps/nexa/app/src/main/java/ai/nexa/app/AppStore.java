@@ -1,4 +1,4 @@
-package ai.nexa.app;
+package ai.ayuron.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -28,7 +28,7 @@ public class AppStore {
     public String serverUrl = "";
 
     public AppStore(Context c) {
-        p = c.getSharedPreferences("nexa_state", Context.MODE_PRIVATE);
+        p = c.getSharedPreferences("ayuron_state", Context.MODE_PRIVATE);
         load();
     }
 
@@ -63,7 +63,7 @@ public class AppStore {
         chats.add(a);
         Chat b = new Chat("c2","Product Room","group","Owen: let's move the review to 18:00","11:08","5",true); b.messages.add(new Message("m3","Owen","Let's move the review to 18:00.","11:08",false)); chats.add(b);
         Chat c = new Chat("c3","Lena Park","lenap","Voice note • 0:18","Yesterday","",false); chats.add(c);
-        channels.add(new Channel("ch1","NEXA Updates","nexaupdates","2.4K","Release notes, experiments and changelogs.","N"));
+        channels.add(new Channel("ch1","Ayuron Updates","ayuronupdates","2.4K","Release notes, experiments and changelogs.","N"));
         channels.add(new Channel("ch2","Design Signals","designsignals","8.7K","Small ideas for better interfaces.","D"));
         channels.add(new Channel("ch3","Berlin Builders","berlinbuilders","1.1K","Meetups, launches and local projects.","B"));
         notices.add(new Notice("n1","Maya Chen liked your post.","12m","♡",false));
