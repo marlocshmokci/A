@@ -207,7 +207,19 @@ public class MainActivity extends Activity {
 
         root.addView(drawer, new FrameLayout.LayoutParams(-1, -1));
 
+        root.setFitsSystemWindows(true);
+        root.setOnApplyWindowInsetsListener((v, insets) -> {
+            v.setPadding(
+                    insets.getSystemWindowInsetLeft(),
+                    insets.getSystemWindowInsetTop(),
+                    insets.getSystemWindowInsetRight(),
+                    insets.getSystemWindowInsetBottom()
+            );
+            return insets.consumeSystemWindowInsets();
+        });
+
         setContentView(root);
+        root.requestApplyInsets();
         renderHistory();
     }
 
@@ -591,6 +603,15 @@ public class MainActivity extends Activity {
 
     private int dp(int value) {
         return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawer != null && drawer.getVisibility() == View.VISIBLE) {
+            closeDrawer();
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override
