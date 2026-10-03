@@ -1,4 +1,4 @@
-# NEXA server
+# Ayuron server
 
 A small reference backend for the Android client's REST/WebSocket contract.
 
