@@ -1,0 +1,14 @@
+plugins { id "com.android.application" }
+
+android {
+    namespace "ai.nexa.app"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "ai.nexa.app"
+        minSdk 24
+        targetSdk 35
+        versionCode 100
+        versionName "1.0.0"
+    }
+}
