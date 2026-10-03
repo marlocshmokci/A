@@ -9,9 +9,9 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.Locale;
 
 public class MainActivity extends Activity {
-    private static final int VERSION_COLOR = 0xFFFE2C55;
     private ModSettings settings;
     private LinearLayout list;
 
@@ -40,7 +39,7 @@ public class MainActivity extends Activity {
         v.setText(value);
         v.setTextSize(size);
         v.setTextColor(Color.BLACK);
-        v.setPadding(dp(18), dp(12), dp(18), dp(12));
+        v.setPadding(dp(16), dp(10), dp(16), dp(10));
         return v;
     }
 
@@ -56,7 +55,7 @@ public class MainActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.WHITE);
 
-        TextView header = text("TikTok AUOI  ·  TTAuOI", 20);
+        TextView header = text("TikTok AUOI · TTAuOI", 20);
         header.setTextColor(Color.WHITE);
         header.setGravity(Gravity.CENTER_VERTICAL);
         header.setBackgroundColor(Color.BLACK);
@@ -70,23 +69,25 @@ public class MainActivity extends Activity {
         root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         setContentView(root);
 
-        list.addView(text("TTAuOI Mod", 28));
+        list.addView(text("Mod", 28));
         list.addView(text("TikTok AUOI · " + ModSettings.VERSION, 14));
 
         Button telegram = button("TTAuOI Telegram Channel");
-        telegram.setOnClickListener(v ->
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/TTAuOI"))));
+        telegram.setOnClickListener(v -> {
+            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(ModSettings.TELEGRAM));
+            startActivity(i);
+        });
         list.addView(telegram);
 
         list.addView(text("Подмена региона", 20));
-        Button region = button("Регион: " + settings.region());
+        Button region = button("Регион: " + (settings.region().isEmpty() ? "по умолчанию" : settings.region()));
         region.setOnClickListener(v -> chooseRegion(region));
         list.addView(region);
 
         list.addView(text("Фильтрация контента", 20));
-        slider("Минимум лайков", settings.likes(), 1_000_000, settings::setLikes);
-        slider("Минимум просмотров", settings.views(), 10_000_000, settings::setViews);
-        slider("Максимальный возраст видео, дней", settings.ageDays(), 3_650, settings::setAgeDays);
+        numberSetting("Минимум лайков", settings.likes(), settings::setLikes);
+        numberSetting("Минимум просмотров", settings.views(), settings::setViews);
+        numberSetting("Максимальный возраст публикации, дней", settings.ageDays(), settings::setAgeDays);
 
         toggle("Убрать трансляции", settings.hideLive(), settings::setHideLive);
         toggle("Убрать рекламу", settings.hideAds(), settings::setHideAds);
@@ -116,23 +117,33 @@ public class MainActivity extends Activity {
         list.addView(text("Версия мода: " + ModSettings.VERSION, 14));
     }
 
-    private void slider(String label, int current, int max, IntSetter setter) {
-        TextView value = text(label + ": " + current, 15);
-        list.addView(value);
+    private void numberSetting(String label, int current, IntSetter setter) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        TextView labelView = text(label, 15);
+        row.addView(labelView, new LinearLayout.LayoutParams(0, -2, 1));
 
-        SeekBar bar = new SeekBar(this);
-        bar.setMax(1000);
-        bar.setProgress((int) ((long) current * 1000L / max));
-        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            public void onProgressChanged(SeekBar b, int progress, boolean fromUser) {
-                int v = (int) ((long) progress * max / 1000L);
-                value.setText(label + ": " + v);
-                setter.set(v);
-            }
-            public void onStartTrackingTouch(SeekBar b) {}
-            public void onStopTrackingTouch(SeekBar b) { restartPrompt(); }
+        Button edit = button(String.valueOf(current));
+        edit.setOnClickListener(v -> {
+            final EditText input = new EditText(this);
+            input.setInputType(2);
+            input.setText(String.valueOf(current));
+            new AlertDialog.Builder(this)
+                    .setTitle(label)
+                    .setView(input)
+                    .setPositiveButton("Сохранить", (d, w) -> {
+                        try {
+                            int value = Integer.parseInt(input.getText().toString().trim());
+                            setter.set(value);
+                            edit.setText(String.valueOf(value));
+                            restartPrompt();
+                        } catch (NumberFormatException ignored) {}
+                    })
+                    .setNegativeButton("Отмена", null)
+                    .show();
         });
-        list.addView(bar);
+        row.addView(edit);
+        list.addView(row);
     }
 
     private void toggle(String label, boolean checked, BoolSetter setter) {
@@ -171,7 +182,7 @@ public class MainActivity extends Activity {
     private void restartPrompt() {
         new AlertDialog.Builder(this)
                 .setTitle("Перезагрузить приложение")
-                .setMessage("Изменения сохранены. Для применения модификации требуется перезапуск TikTok.")
+                .setMessage("Изменения сохранены. Для применения требуется перезапуск TikTok.")
                 .setPositiveButton("Перезапустить", (dialog, which) -> {
                     Intent launch = getPackageManager().getLaunchIntentForPackage(getPackageName());
                     finishAffinity();

@@ -1,8 +1,7 @@
 *.apk
+*.apks
 *.aab
 *.keystore
 *.jks
 .gradle/
 build/
-.idea/
-.DS_Store

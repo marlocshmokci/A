@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 public final class ModSettings {
     public static final String VERSION = "v2.0.5";
+    public static final String TELEGRAM = "https://t.me/TTAuOI";
     private static final String PREFS = "ttauoi_mod";
 
     private final SharedPreferences p;
@@ -13,13 +14,8 @@ public final class ModSettings {
         p = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    public String region() {
-        return p.getString("region", java.util.Locale.getDefault().getCountry());
-    }
-
-    public void region(String value) {
-        p.edit().putString("region", value).apply();
-    }
+    public String region() { return p.getString("region", ""); }
+    public void region(String value) { p.edit().putString("region", value).apply(); }
 
     public int likes() { return p.getInt("likes", 0); }
     public int views() { return p.getInt("views", 0); }
@@ -32,14 +28,14 @@ public final class ModSettings {
 
     public int theme() { return p.getInt("theme", 0xFFFE2C55); }
 
-    public void setLikes(int value) { p.edit().putInt("likes", value).apply(); }
-    public void setViews(int value) { p.edit().putInt("views", value).apply(); }
-    public void setAgeDays(int value) { p.edit().putInt("ageDays", value).apply(); }
+    public void setLikes(int v) { p.edit().putInt("likes", Math.max(0, v)).apply(); }
+    public void setViews(int v) { p.edit().putInt("views", Math.max(0, v)).apply(); }
+    public void setAgeDays(int v) { p.edit().putInt("ageDays", Math.max(0, v)).apply(); }
 
-    public void setHideLive(boolean value) { p.edit().putBoolean("hideLive", value).apply(); }
-    public void setHideAds(boolean value) { p.edit().putBoolean("hideAds", value).apply(); }
-    public void setHideFeedPhotos(boolean value) { p.edit().putBoolean("hideFeedPhotos", value).apply(); }
-    public void setHideStoryPhotos(boolean value) { p.edit().putBoolean("hideStoryPhotos", value).apply(); }
+    public void setHideLive(boolean v) { p.edit().putBoolean("hideLive", v).apply(); }
+    public void setHideAds(boolean v) { p.edit().putBoolean("hideAds", v).apply(); }
+    public void setHideFeedPhotos(boolean v) { p.edit().putBoolean("hideFeedPhotos", v).apply(); }
+    public void setHideStoryPhotos(boolean v) { p.edit().putBoolean("hideStoryPhotos", v).apply(); }
 
-    public void theme(int value) { p.edit().putInt("theme", value).apply(); }
+    public void theme(int v) { p.edit().putInt("theme", v).apply(); }
 }

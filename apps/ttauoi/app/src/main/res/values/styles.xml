@@ -4,6 +4,5 @@
         <item name="android:colorAccent">#FE2C55</item>
         <item name="android:navigationBarColor">#000000</item>
         <item name="android:statusBarColor">#000000</item>
-        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

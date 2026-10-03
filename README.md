@@ -1,47 +1,34 @@
 # TTAuOI — TikTok AUOI v2.0.5
 
-TTAuOI is a mod/integration project for a user-supplied, legally obtained TikTok Android APK.
+TTAuOI is the mod layer for a user-supplied TikTok Android APK.
 
-## Requested feature set
+## Target UI
 
-- Profile → Privacy: **Mod** entry at the top.
-- **TTAuOI Telegram Channel** → https://t.me/TTAuOI
-- Region override: all ISO 3166-1 countries.
-- Content filters: minimum likes, minimum views, maximum publication age.
-- Hide LIVE streams.
-- Hide ads.
-- Hide photos in the feed.
-- Hide photos in Stories.
-- Appearance: 10 selectable accent colors affecting like/comment/follow controls.
-- Restart prompt after settings that require process recreation.
-- Version: **v2.0.5**.
+Profile → Privacy → Mod
 
-## Important build model
+- TTAuOI Telegram Channel → https://t.me/TTAuOI
+- Region override with ISO 3166-1 country selection
+- Content filters: minimum likes, minimum views, publication-age limit
+- Hide LIVE
+- Hide ads
+- Hide feed photos
+- Hide Story photos
+- Appearance with 10 accent colors for likes, comments and Follow
+- Restart prompt after settings that require app recreation
+- Version v2.0.5
 
-The repository does not contain TikTok's APK. The uploaded base APK must remain outside Git history because it is a large third-party application binary.
+## Source APK
 
-The real-mod pipeline is:
+The uploaded TikTok APK is not committed to this repository. It is a third-party binary and is intentionally kept outside Git history.
 
-1. provide the target TikTok APK to the patch command;
-2. decode it with Apktool 3.x;
-3. locate the privacy/settings menu and compatible integration points;
-4. add the TTAuOI settings layer;
-5. rebuild and sign the resulting APK with a user-controlled signing key.
+The local integration command is:
 
-The patcher fails closed when the exact target structure cannot be located; it never silently produces an APK that merely looks modified.
-
-## Standalone settings build
-
-The Android project under `apps/ttauoi` is the TTAuOI settings/core layer and CI smoke-test target. It is not presented as a modified TikTok client.
-
-## Local real-mod build
-
-Install Apktool 3.0.3 and run:
-
-```bash
 python3 tools/patch_tiktok.py /path/to/TikTok.apk --out TTAuOI-v2.0.5.apk
-```
 
-The script verifies the input package is `com.zhiliaoapp.musically`, verifies the expected privacy-menu anchor, and stops if the target build is structurally incompatible.
+The patcher is version-gated and fails closed when the target structure is not verified.
 
-Apktool 3.0.3 is the current 3.x release used by this project.
+## CI
+
+GitHub Actions builds the TTAuOI settings/core project as a smoke-test APK. It does not pretend that this standalone APK is the modified TikTok client.
+
+A real TikTok build must be produced from the supplied APK with a user-controlled signing key after the exact integration adapter for that APK build has been verified.

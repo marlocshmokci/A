@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""
-TTAuOI base-APK integration guard.
+"""TTAuOI integration guard for the supplied TikTok APK.
 
-This tool intentionally fails closed. It does not claim to produce a real TikTok
-mod unless the supplied APK matches the expected package and the known privacy
-menu structure. Apktool 3.0.3 must be installed and available as "apktool".
+The script is deliberately fail-closed. It verifies the package and the known
+privacy/settings protocol anchor before any APK rebuild is attempted.
 """
 
 from __future__ import annotations
@@ -14,96 +12,77 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import zipfile
 from pathlib import Path
 
 EXPECTED_PACKAGE = "com.zhiliaoapp.musically"
 VERSION = "v2.0.5"
-PRIVACY_ANCHOR = "content_section_cell_settings_and_privacy"
+ANCHORS = (
+    "content_section_cell_settings_and_privacy",
+    "ProfileNavbarSettingsAndPrivacyProtocol",
+    "aweme://privacy/setting",
+)
 
-
-def run(cmd: list[str], cwd: Path | None = None) -> None:
+def run(cmd: list[str]) -> None:
     print("$", " ".join(cmd))
-    subprocess.run(cmd, cwd=cwd, check=True)
-
-
-def package_from_manifest(apk: Path) -> str:
-    # Binary AndroidManifest.xml is deliberately not parsed here. The decoded
-    # manifest is authoritative and lets Apktool handle resource formats.
-    return ""
-
+    subprocess.run(cmd, check=True)
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("apk", type=Path)
-    parser.add_argument("--out", type=Path, default=Path(f"TTAuOI-{VERSION}.apk"))
-    args = parser.parse_args()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("apk", type=Path)
+    ap.add_argument("--out", type=Path, default=Path(f"TTAuOI-{VERSION}.apk"))
+    ap.add_argument("--inspect-only", action="store_true")
+    args = ap.parse_args()
 
     apk = args.apk.resolve()
-    out = args.out.resolve()
-
     if not apk.is_file():
         print(f"error: APK not found: {apk}", file=sys.stderr)
         return 2
 
     if shutil.which("apktool") is None:
-        print("error: apktool is required (tested with Apktool 3.0.3)", file=sys.stderr)
+        print("error: install Apktool 3.0.3 and make it available as 'apktool'", file=sys.stderr)
         return 2
 
     with tempfile.TemporaryDirectory(prefix="ttauoi-") as tmp:
-        work = Path(tmp)
-        decoded = work / "decoded"
-
+        decoded = Path(tmp) / "decoded"
         run(["apktool", "d", "-f", str(apk), "-o", str(decoded)])
 
         manifest = decoded / "AndroidManifest.xml"
         if not manifest.exists():
-            print("error: decoded AndroidManifest.xml is missing", file=sys.stderr)
+            print("error: decoded manifest is missing", file=sys.stderr)
             return 3
 
         manifest_text = manifest.read_text(encoding="utf-8", errors="replace")
         if EXPECTED_PACKAGE not in manifest_text:
-            print(
-                f"error: target package is not {EXPECTED_PACKAGE}; refusing to patch",
-                file=sys.stderr,
-            )
+            print(f"error: expected package {EXPECTED_PACKAGE} not found", file=sys.stderr)
             return 4
 
-        smali_hits: list[Path] = []
-        for root in (decoded / "smali", decoded / "smali_classes2",
-                     decoded / "smali_classes3", decoded / "smali_classes4"):
-            if not root.exists():
+        hits: list[tuple[str, str]] = []
+        for root in sorted(decoded.glob("smali*")):
+            if not root.is_dir():
                 continue
-            for file in root.rglob("*.smali"):
-                try:
-                    data = file.read_text(encoding="utf-8", errors="replace")
-                except OSError:
-                    continue
-                if PRIVACY_ANCHOR in data:
-                    smali_hits.append(file)
+            for f in root.rglob("*.smali"):
+                data = f.read_text(encoding="utf-8", errors="replace")
+                for anchor in ANCHORS:
+                    if anchor in data:
+                        hits.append((str(f.relative_to(decoded)), anchor))
 
-        if not smali_hits:
-            print(
-                "error: the expected privacy-menu anchor was not found; "
-                "this TikTok build needs a new integration adapter",
-                file=sys.stderr,
-            )
+        if not hits:
+            print("error: no verified TTAuOI integration anchor found; refusing to patch", file=sys.stderr)
             return 5
 
-        print("Detected privacy-menu anchor in:")
-        for hit in smali_hits[:20]:
-            print("  ", hit.relative_to(decoded))
+        print("Verified anchors:")
+        for path, anchor in hits[:50]:
+            print(f"  {path}: {anchor}")
 
-        # Do not perform a guessed bytecode edit. The current TikTok build uses
-        # generated/privacy menu data, so blindly editing the first matching
-        # class is unsafe. The adapter is deliberately version-gated.
+        if args.inspect_only:
+            return 0
+
         print(
-            "error: target structure detected, but no verified adapter exists "
-            "for this exact TikTok build yet. No APK was emitted.",
+            "error: this TikTok build is detected, but the bytecode adapter is not "
+            "verified for this exact build. No modified APK was emitted.",
             file=sys.stderr,
         )
         return 6
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -11,7 +11,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -20,21 +19,24 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Prepare Android SDK
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Install Android SDK
         run: |
           yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Build settings/core APK
+      - name: Build TTAuOI core
         working-directory: apps/ttauoi
-        run: gradle :app:assembleDebug
+        run: gradle :app:assembleDebug --no-daemon
 
       - name: Verify APK
         run: |
-          $ANDROID_HOME/build-tools/36.0.0/apksigner verify             apps/ttauoi/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify             apps/ttauoi/app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Publish artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: TTAuOI-v2.0.5-settings-debug
           path: apps/ttauoi/app/build/outputs/apk/debug/app-debug.apk
