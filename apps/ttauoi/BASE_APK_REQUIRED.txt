@@ -1,0 +1,7 @@
+TTAuOI v2.0.5 — base APK required
+
+For a REAL modified TikTok build, provide the TikTok Android APK that you want to use as the base.
+
+The standalone TTAuOI APK is only the settings/core layer. It cannot become a modified TikTok client without a target APK to patch.
+
+After receiving the APK: inspect package/resources; locate Profile/Privacy UI; insert the Mod entry; integrate TTAuOI settings; add region/filter/theme hooks; rebuild and sign the resulting APK; test installation and launch.
