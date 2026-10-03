@@ -1,0 +1,1 @@
+# TikTok AUOI (TTAuOI)\n\nAndroid mod-settings project, version v2.0.5.\n
