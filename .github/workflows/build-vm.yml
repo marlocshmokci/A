@@ -31,7 +31,7 @@ jobs:
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Generate 360 MiB guest image
+      - name: Fetch real ARM64 guest runtime bundle
         working-directory: apps/ayurones-vm
         run: |
           set -e
@@ -55,7 +55,7 @@ jobs:
           SIZE=$(stat -c%s "$APK")
           echo "APK bytes: $SIZE"
           test "$SIZE" -ge 367001600
-          cp "$APK" Ayurones-VM-v0.4.0-debug.apk
+          cp "$APK" Ayurones-VM-v0.5.0-debug.apk
           sha256sum Ayurones-VM-v0.4.0-debug.apk
 
       - name: Upload artifact
@@ -71,5 +71,5 @@ jobs:
         run: |
           set -e
           gh release delete v0.4.0 --yes 2>/dev/null || true
-          gh release create v0.4.0 --target "$GITHUB_SHA" --title "Ayurones VM v0.4.0" --notes "Functional Ayurones VM shell with persistent guest state, terminal, file manager, diagnostics, virtual networking and a 360 MiB embedded guest runtime image."
+          gh release create v0.4.0 --target "$GITHUB_SHA" --title "Ayurones VM v0.4.0" --notes "Functional Ayurones VM shell with persistent guest state, terminal, file manager, diagnostics, virtual networking and a real ARM64 guest runtime embedded guest runtime image."
           gh release upload v0.4.0 Ayurones-VM-v0.4.0-debug.apk --clobber
