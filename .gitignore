@@ -5,3 +5,11 @@ __pycache__/
 .venv/
 data/*.db
 models/
+
+# Android
+android/.gradle/
+android/local.properties
+android/**/build/
+android/captures/
+android/.idea/
+*.iml
