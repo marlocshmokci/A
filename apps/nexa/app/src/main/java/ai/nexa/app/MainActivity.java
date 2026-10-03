@@ -159,7 +159,7 @@ public class MainActivity extends Activity {
     }
 
     View messageBubble(AppStore.Message m){
-        LinearLayout wrap=row();wrap.setGravity(m.me?Gravity.RIGHT:Gravity.LEFT);pad(wrap,14,5,14,5);LinearLayout b=col();b.setPadding(dp(12),dp(8),dp(12),dp(7));b.setBackground(bg(m.me?accent:card,18));TextView sender=tvm(m.me?"You":m.sender,11);if(m.me)sender.setTextColor(0xDDEFFFFFF);TextView text=tv(m.text,15);text.setLineSpacing(0,1.05f);TextView tm=tvm((m.time==null?"":m.time)+(m.reaction.isEmpty()?"":"   "+m.reaction),10);if(m.me)tm.setTextColor(0xBBFFFFFF);b.addView(sender);b.addView(text);b.addView(tm);wrap.addView(b,new LinearLayout.LayoutParams((int)(getResources().getDisplayMetrics().widthPixels*0.78),-2));wrap.setOnLongClickListener(v->{reactMessage(m);return true;});return wrap;
+        LinearLayout wrap=row();wrap.setGravity(m.me?Gravity.RIGHT:Gravity.LEFT);pad(wrap,14,5,14,5);LinearLayout b=col();b.setPadding(dp(12),dp(8),dp(12),dp(7));b.setBackground(bg(m.me?accent:card,18));TextView sender=tvm(m.me?"You":m.sender,11);if(m.me)sender.setTextColor(0xDDEFFFFF);TextView text=tv(m.text,15);text.setLineSpacing(0,1.05f);TextView tm=tvm((m.time==null?"":m.time)+(m.reaction.isEmpty()?"":"   "+m.reaction),10);if(m.me)tm.setTextColor(0xBBFFFFFF);b.addView(sender);b.addView(text);b.addView(tm);wrap.addView(b,new LinearLayout.LayoutParams((int)(getResources().getDisplayMetrics().widthPixels*0.78),-2));wrap.setOnLongClickListener(v->{reactMessage(m);return true;});return wrap;
     }
 
     void reactMessage(AppStore.Message m){String[] a={"♡","👍","😂","🔥","✅","!",""};new AlertDialog.Builder(this).setTitle("React to message").setItems(a,(d,w)->{m.reaction=a[w];store.save();toast(m.reaction.isEmpty()?"Reaction removed":"Reaction added");}).show();}
