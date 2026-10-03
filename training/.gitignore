@@ -1,6 +1,0 @@
-data/corpus.txt
-data/raw/*
-!data/raw/.gitkeep
-tokenizer.json
-checkpoints/*
-!checkpoints/.gitkeep
