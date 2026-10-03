@@ -1,7 +1,0 @@
-*.apk
-*.apks
-*.aab
-*.keystore
-*.jks
-.gradle/
-build/
