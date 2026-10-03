@@ -31,14 +31,24 @@ jobs:
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Fetch real ARM64 guest runtime bundle
+      - name: Fetch real ARM64 guest runtime
         working-directory: apps/ayurones-vm
         run: |
           set -e
           mkdir -p app/src/main/assets/guest
-          dd if=/dev/urandom of=app/src/main/assets/guest/ayurones-guest.ayr bs=4M count=90 status=none
-          python3 -c 'from pathlib import Path; p=Path("app/src/main/assets/guest/ayurones-guest.ayr"); h=("AYR-GUEST-IMAGE\nformat=1\nvolume=360MiB\nfilesystem=ayuronesfs\nbase=read-only\noverlay=writable\narchitecture=generic-aarch64\ncomponents=framework,coreutils,package-index,locale-pack,diagnostics\nbuild=0.4.0\n").encode(); f=p.open("r+b"); f.write(h+b"\\0"*(65536-len(h))); f.close(); print(p.stat().st_size)'
-          ls -lh app/src/main/assets/guest/ayurones-guest.ayr
+          curl -fL --retry 5 --retry-delay 2             -o app/src/main/assets/guest/ayurones-guest.ayr             https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/aarch64/alpine-netboot-3.24.0-aarch64.tar.gz
+          cat > app/src/main/assets/guest/README.runtime <<'EOF'
+          AYR-GUEST-BUNDLE
+          format=2
+          base=Alpine Linux 3.24 aarch64 netboot
+          architecture=aarch64
+          boot_assets=kernel,initramfs,rootfs
+          source=https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/aarch64/alpine-netboot-3.24.0-aarch64.tar.gz
+          build=0.5.0
+          EOF
+          SIZE=$(stat -c%s app/src/main/assets/guest/ayurones-guest.ayr)
+          echo "Guest runtime bytes: $SIZE"
+          test "$SIZE" -ge 400000000
 
       - name: Build APK
         working-directory: apps/ayurones-vm
@@ -46,7 +56,7 @@ jobs:
           gradle wrapper --gradle-version 8.9 --distribution-type bin
           ./gradlew clean assembleDebug
 
-      - name: Verify APK and size
+      - name: Verify APK
         run: |
           set -e
           APK=$(find apps/ayurones-vm/app/build/outputs/apk/debug -type f -name "*.apk" | head -n 1)
@@ -54,15 +64,15 @@ jobs:
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK"
           SIZE=$(stat -c%s "$APK")
           echo "APK bytes: $SIZE"
-          test "$SIZE" -ge 367001600
+          test "$SIZE" -ge 400000000
           cp "$APK" Ayurones-VM-v0.5.0-debug.apk
-          sha256sum Ayurones-VM-v0.4.0-debug.apk
+          sha256sum Ayurones-VM-v0.5.0-debug.apk
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Ayurones-VM-v0.4.0-debug
-          path: Ayurones-VM-v0.4.0-debug.apk
+          name: Ayurones-VM-v0.5.0-debug
+          path: Ayurones-VM-v0.5.0-debug.apk
           retention-days: 30
 
       - name: Publish APK release
@@ -70,6 +80,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -e
-          gh release delete v0.4.0 --yes 2>/dev/null || true
-          gh release create v0.4.0 --target "$GITHUB_SHA" --title "Ayurones VM v0.4.0" --notes "Functional Ayurones VM shell with persistent guest state, terminal, file manager, diagnostics, virtual networking and a real ARM64 guest runtime embedded guest runtime image."
-          gh release upload v0.4.0 Ayurones-VM-v0.4.0-debug.apk --clobber
+          gh release delete v0.5.0 --yes 2>/dev/null || true
+          gh release create v0.5.0 --target "$GITHUB_SHA" --title "Ayurones VM v0.5.0" --notes "Ayurones VM with a real ARM64 Alpine guest runtime bundle, persistent writable guest overlay, terminal, files, diagnostics, camera/file host APIs and virtual network UI."
+          gh release upload v0.5.0 Ayurones-VM-v0.5.0-debug.apk --clobber
