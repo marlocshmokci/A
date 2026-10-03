@@ -1,4 +1,4 @@
-# NEXA server contract
+# Ayuron server contract
 
 The Android client is local-first. A production deployment can connect it to a server implementing these endpoints.
 
