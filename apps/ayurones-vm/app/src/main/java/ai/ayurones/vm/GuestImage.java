@@ -14,7 +14,7 @@ public final class GuestImage {
             return c.getAssets().openFd(ASSET).getLength();
         } catch (Exception ignored) {
             try {
-                InputStream in = c.getAssets().open(ASSET);
+                InputStream in = c.getAssets().open("guest/README.runtime");
                 long total = 0;
                 byte[] b = new byte[65536];
                 int n;
