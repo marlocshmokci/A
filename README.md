@@ -1,13 +1,12 @@
 # Ballistic Lab
 
-Android project packaged from the supplied `BallisticLab.zip`.
+GitHub Actions is configured to build an Android debug APK from `BallisticLab.zip`.
 
-## Build APK
+## First build
 
-A GitHub Actions workflow builds the debug APK on pushes to `main` and publishes the APK as a GitHub Release.
+1. Upload the original `BallisticLab.zip` file to the repository root (the same level as this README).
+2. Commit the upload to `main`.
+3. Open **Actions** and wait for **Build Ballistic Lab APK** to finish.
+4. Download the APK from **Releases** (or from the workflow's Artifacts section).
 
-- Open the **Actions** tab to inspect build logs.
-- Open **Releases** to download the APK.
-- The app uses a local HTML canvas inside Android WebView; it does not need an internet connection for the main simulation.
-
-The project archive is stored as base64 parts under `.build/` so Actions can reconstruct the exact uploaded ZIP before building.
+The workflow uses Java 17 and Gradle 8.7. The app runs its local HTML canvas inside Android WebView.
